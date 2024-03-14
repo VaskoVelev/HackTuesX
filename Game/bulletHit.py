@@ -16,7 +16,7 @@ class BulletHit(pygame.sprite.Sprite):
         self.rect.center = (x, y)
     
     def loadAnimation(self):
-        numFrames = 4
+        numFrames = 1
         for i in range(1, numFrames+1):
             framePath = f'Game/spriteSheets/playerHit/playerHit{i}.png'
             frame = pygame.image.load(framePath).convert_alpha()

@@ -29,7 +29,7 @@ def drawMenu():
     global gameState
     activeButtons = pygame.sprite.Group()
     for i, option in enumerate(menuOptions):
-        button = Button(WIDTH//2 - 150 , 350 + i * 100, 300, 80, option, gameState)
+        button = Button(WIDTH//2, 350 + i * 100, 300, 80, option, gameState)
         buttonGroup.add(button)
         activeButtons.add(button)
     for button in buttonGroup:
