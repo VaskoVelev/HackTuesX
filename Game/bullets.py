@@ -21,9 +21,9 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         
     def loadAnimation(self):
-        numFrames = 4
+        numFrames = 1
         for i in range(1, numFrames+1):
-            framePath = f'spriteSheets/playerShoot/ps{i}.png'
+            framePath = f'Game/spriteSheets/playerShoot/ps{i}.png'
             frame = pygame.image.load(framePath).convert_alpha()
             frameScaled = pygame.transform.scale(frame, (self.desiredWidth, self.desiredHeight))
             self.images.append(frameScaled)
@@ -36,7 +36,7 @@ class Bullet(pygame.sprite.Sprite):
             if self.frameIndex >= len(self.images):
                 self.frameIndex = 0
         self.image = self.images[self.frameIndex]
-        self.rect.x += 4     
+        self.rect.x += 8    
         trashBulletCollide = pygame.sprite.spritecollide(self, self.trashGroup, False)
         for trash in trashBulletCollide:
             self.fish.score += trash.value

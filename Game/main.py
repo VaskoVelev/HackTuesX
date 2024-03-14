@@ -9,7 +9,6 @@ from button import Button
 
 pygame.init()
 
-# Settings 
 WIDTH = 1400
 HEIGHT = 650
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -17,9 +16,7 @@ FPS = 60
 clock = pygame.time.Clock()
 pygame.display.set_caption("Floppy Fish")
 pixelFont = pygame.font.SysFont(None, 36)
-# //
 
-# Game state
 MENU = "menu"
 RUNNING = "running"
 PAUSED = "paused"
@@ -28,13 +25,11 @@ menuOptions = ["Start", "Settings", "Quit"]
 
 buttonGroup = pygame.sprite.Group()
 
-
-
 def drawMenu():
     global gameState
     activeButtons = pygame.sprite.Group()
     for i, option in enumerate(menuOptions):
-        button = Button(WIDTH//2 - 150 , 350 + i * 100, 300, 80, option, gameState)
+        button = Button(WIDTH//2, 350 + i * 100, 300, 80, option, gameState)
         buttonGroup.add(button)
         activeButtons.add(button)
     for button in buttonGroup:
@@ -57,10 +52,8 @@ def drawMenu():
         
 
 
-
-# Background Setup 
-background = pygame.transform.scale(pygame.image.load('spriteSheets/underwater.png'), (WIDTH, 700))
-menuBackground = pygame.transform.scale(pygame.image.load('spriteSheets/Back.png'), (WIDTH, HEIGHT))
+background = pygame.transform.scale(pygame.image.load('Game/spriteSheets/underwater.png'), (WIDTH, 700))
+menuBackground = pygame.transform.scale(pygame.image.load('Game/spriteSheets/Back.png'), (WIDTH, HEIGHT))
 scrollSpeed = 2
 bgX = 0
 
@@ -70,14 +63,12 @@ def updateBG():
     if bgX <= -WIDTH:
         bgX = 0
     return bgX
-# //
 
-# Navbar setup
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 navbarWidth = 1400
 navbarHeight = 75
-navbarFrame = pygame.transform.scale(pygame.image.load('spriteSheets/frame.png'), (navbarWidth + 10 , navbarHeight ))
+navbarFrame = pygame.transform.scale(pygame.image.load('Game/spriteSheets/frame.png'), (navbarWidth + 10 , navbarHeight ))
 navbarRect = pygame.Rect(0, 0, navbarWidth , navbarHeight - 10)
 navbarFont = pixelFont
 navbarColor = (100, 100, 100)
@@ -113,14 +104,13 @@ def displayNavBar(life, score):
     WIN.blit(distanceText, (600, 30))
     WIN.blit(scoreText, (1000, 30))
 
-# Trash Group
 trashGroup = pygame.sprite.Group()
 maxTrashCount = 38
-trashList = ['spriteSheets/trash/beer.xcf', 'spriteSheets/trash/bottle.xcf', 'spriteSheets/trash/box.png', 
-               'spriteSheets/trash/cup.xcf', 'spriteSheets/trash/jar.xcf', 'spriteSheets/trash/largeCan.xcf', 
-               'spriteSheets/trash/laundry.xcf', 'spriteSheets/trash/milk.xcf', 'spriteSheets/trash/mug.xcf', 
-               'spriteSheets/trash/news.xcf', 'spriteSheets/trash/pizzabox.xcf', 'spriteSheets/trash/smallCan.xcf', 
-               'spriteSheets/trash/sodaCan.xcf', 'spriteSheets/trash/sprayCan.xcf', 'spriteSheets/trash/waterbottle.xcf' ]
+trashList = ['Game/spriteSheets/trash/beer.xcf', 'Game/spriteSheets/trash/bottle.xcf', 'Game/spriteSheets/trash/box.png', 
+               'Game/spriteSheets/trash/cup.xcf', 'Game/spriteSheets/trash/jar.xcf', 'Game/spriteSheets/trash/largeCan.xcf', 
+               'Game/spriteSheets/trash/laundry.xcf', 'Game/spriteSheets/trash/milk.xcf', 'Game/spriteSheets/trash/mug.xcf', 
+               'Game/spriteSheets/trash/news.xcf', 'Game/spriteSheets/trash/pizzabox.xcf', 'Game/spriteSheets/trash/smallCan.xcf', 
+               'Game/spriteSheets/trash/sodaCan.xcf', 'Game/spriteSheets/trash/sprayCan.xcf', 'Game/spriteSheets/trash/waterbottle.xcf' ]
 
 def spawnTrash():
     if len(trashGroup) < maxTrashCount: 
@@ -129,7 +119,6 @@ def spawnTrash():
             randomY = random.randrange(100, 465)
             randomNum = random.randint(0, len(trashList) - 1)
 
-          # Determine the width and height based on the randomNum
             if randomNum in [0, 1, 11, 12, 13, 14]:
                 width = 25
                 height = 35
@@ -165,19 +154,18 @@ def updateTrash(trashList):
         trash.update()
 bulletGroup = pygame.sprite.Group()
 bulletHitGroup = pygame.sprite.Group()
-# Fish/Player
+
 myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score)
-# Shark 
+
 myShark = Shark(1700, 300, 160, 80, trashGroup)
 
 def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font.SysFont(None, 36)):
-    # how much 'shadow distance' is best?
     dropShadowOffset = 3 + (size // 15)
     textFont = pygame.font.SysFont(None, 36)
-    # make the drop-shadow
+
     textBitmap = textFont.render(text, True, dropColor)
     screen.blit(textBitmap, (x+dropShadowOffset, y+dropShadowOffset) )
-    # make the overlay text
+
     textBitmap = textFont.render(text, True, color)
     screen.blit(textBitmap, (x, y) )
 
