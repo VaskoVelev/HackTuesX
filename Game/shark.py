@@ -6,7 +6,7 @@ class Shark(pygame.sprite.Sprite):
         super().__init__()
 
         # Loading the sprite sheet img
-        sharkSS = pygame.image.load("spriteSheets/blackSharkSS.png").convert_alpha()
+        sharkSS = pygame.image.load("Game/spriteSheets/blackSharkSS.png").convert_alpha()
         self.frameIndex = 0
         self.animationSpeed = 15
         self.frameCount = 0 

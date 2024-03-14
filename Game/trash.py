@@ -4,7 +4,7 @@ import random
 class Trash(pygame.sprite.Sprite):
     def __init__(self, picturePath, x, y, width, height, value):
         super().__init__()
-        ogImage = pygame.image.load("spriteSheets/trash1.png").convert_alpha()
+        ogImage = pygame.image.load("Game/spriteSheets/trash1.png").convert_alpha()
         self.angle = random.randint(0, 360)
         self.image = pygame.transform.scale(ogImage, (width, height))
         self.image = pygame.transform.rotate(self.image, self.angle)
