@@ -106,11 +106,11 @@ def displayNavBar(life, score):
 
 trashGroup = pygame.sprite.Group()
 maxTrashCount = 38
-trashList = ['Game/spriteSheets/trash/beer.xcf', 'Game/spriteSheets/trash/bottle.xcf', 'Game/spriteSheets/trash/box.png', 
-               'Game/spriteSheets/trash/cup.xcf', 'Game/spriteSheets/trash/jar.xcf', 'Game/spriteSheets/trash/largeCan.xcf', 
-               'Game/spriteSheets/trash/laundry.xcf', 'Game/spriteSheets/trash/milk.xcf', 'Game/spriteSheets/trash/mug.xcf', 
-               'Game/spriteSheets/trash/news.xcf', 'Game/spriteSheets/trash/pizzabox.xcf', 'Game/spriteSheets/trash/smallCan.xcf', 
-               'Game/spriteSheets/trash/sodaCan.xcf', 'Game/spriteSheets/trash/sprayCan.xcf', 'Game/spriteSheets/trash/waterbottle.xcf' ]
+trashList = ['Game/spriteSheets/trash/beer.png', 'Game/spriteSheets/trash/bottle.png', 'Game/spriteSheets/trash/box.png', 
+               'Game/spriteSheets/trash/cup.png', 'Game/spriteSheets/trash/jar.png', 'Game/spriteSheets/trash/largeCan.png', 
+               'Game/spriteSheets/trash/laundry.png', 'Game/spriteSheets/trash/milk.png', 'Game/spriteSheets/trash/mug.png', 
+               'Game/spriteSheets/trash/news.png', 'Game/spriteSheets/trash/pizzabox.png', 'Game/spriteSheets/trash/smallCan.png', 
+               'Game/spriteSheets/trash/sodaCan.png', 'Game/spriteSheets/trash/sprayCan.png', 'Game/spriteSheets/trash/waterbottle.png' ]
 
 def spawnTrash():
     if len(trashGroup) < maxTrashCount: 
