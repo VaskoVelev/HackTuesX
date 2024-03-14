@@ -1,2 +1,1 @@
 # HackTuesX
-petur putkins
