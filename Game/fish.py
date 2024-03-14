@@ -6,7 +6,7 @@ class Fish(pygame.sprite.Sprite):
         super().__init__()
 
         # Loading the sprite sheet img
-        fishSS = pygame.image.load("spriteSheets/bluefishSS.jpg").convert_alpha()
+        fishSS = pygame.image.load("Game/spriteSheets/bluefishSS.jpg").convert_alpha()
         self.frameIndex = 0
         self.animationSpeed = 15
         self.frameCount = 0 

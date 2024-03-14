@@ -23,7 +23,7 @@ class Bullet(pygame.sprite.Sprite):
     def loadAnimation(self):
         numFrames = 4
         for i in range(1, numFrames+1):
-            framePath = f'spriteSheets/playerShoot/ps{i}.png'
+            framePath = f'Game/spriteSheets/playerShoot/ps{i}.png'
             frame = pygame.image.load(framePath).convert_alpha()
             frameScaled = pygame.transform.scale(frame, (self.desiredWidth, self.desiredHeight))
             self.images.append(frameScaled)
