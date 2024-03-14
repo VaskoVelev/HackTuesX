@@ -8,8 +8,8 @@ class Bullet(pygame.sprite.Sprite):
         self.frameCount = 0
         self.frameIndex = 0
         self.animationSpeed = 7
-        self.desiredHeight = height
-        self.desiredWidth = width
+        self.desiredHeight = 70
+        self.desiredWidth = 70
         self.trashGroup = trashGroup
         self.bulletHitGroup = bulletHitGroup
         self.fish = fish
@@ -21,7 +21,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         
     def loadAnimation(self):
-        numFrames = 1
+        numFrames = 6
         for i in range(1, numFrames+1):
             framePath = f'Game/spriteSheets/playerShoot/ps{i}.png'
             frame = pygame.image.load(framePath).convert_alpha()

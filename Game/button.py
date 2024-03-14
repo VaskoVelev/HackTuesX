@@ -1,4 +1,5 @@
 import pygame
+
 class Button(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, text, gameState):
         super().__init__()
@@ -15,10 +16,9 @@ class Button(pygame.sprite.Sprite):
         self.desiredHeight = height
         self.rect.center = (x, y)
         self.text = text
-        self.font = pygame.font.SysFont(None, 36)
-        self.collisionRect = pygame.Rect(x, y, width, height)
+        self.font = pygame.font.Font('Game/font/Pixeltype.ttf', 50)
+        self.collisionRect = pygame.Rect(x - width // 2, y - height // 2, width, height)
         self.gameState = gameState
-        
 
     def handleHover(self, mousePOS):
         if self.collisionRect.collidepoint(mousePOS):
@@ -26,9 +26,7 @@ class Button(pygame.sprite.Sprite):
         else:
             self.handleDefault()
         self.image = self.images[self.state]
-            
-       
-    
+
     def handleClick(self,  mousePOS):
         if self.collisionRect.collidepoint(mousePOS):
             self.state = 'pressed'
@@ -39,17 +37,17 @@ class Button(pygame.sprite.Sprite):
 
             if self.text == 'Quit':
                 pygame.quit()
-                exit()    
+                exit()
+
     def handleDefault(self):
         self.state = 'normal'
         self.image = self.images[self.state]
-    
 
     def draw(self, surface):
         scaledImage = pygame.transform.scale(self.image, (self.desiredWidth, self.desiredHeight))
-        surface.blit(scaledImage, self.rect)
+        image_rect = scaledImage.get_rect(center=self.rect.center)
+        surface.blit(scaledImage, image_rect)
+        
         textSurface = self.font.render(self.text, True, (255, 255, 255))
         textRect = textSurface.get_rect(center=self.rect.center)
-        textRect.y += (self.desiredHeight - textRect.height) // 2
-        textRect.x += (self.desiredWidth - 125) // 2
         surface.blit(textSurface, textRect)
