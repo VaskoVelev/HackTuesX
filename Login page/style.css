@@ -29,12 +29,6 @@ header {
     z-index: 99;
 }
 
-.logo {
-    font-size: 2em;
-    color: white;
-    user-select: none;
-}
-
 .navigation a {
     position: relative;
     font-size: 1.1em;
