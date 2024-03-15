@@ -15,7 +15,7 @@
             font-family: 'Poppins', 'sans-serif';
         }
         body {
-            background: url("{{ url_for('static', filename='images/background_facts.jpg') }}") no-repeat;
+            background: url("{{ url_for('static', filename='images/gallerybackground.png') }}") no-repeat;
             background-size: cover;
             background-position: center;
             display: flex;
@@ -23,6 +23,30 @@
             align-items: center;
             min-height: 100vh;
         }
+
+        .navigation .login-popup {
+            width: 130px;
+            height: 50px;
+            background: transparent;
+            border: 2px solid white;
+            outline: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: white;
+            font-weight: 500;
+            margin-left: 40px;
+            transition: 0.5s;
+        }
+
+        .navigation .login-popup:hover {
+            background: white;
+            color: #0e3d49;
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }   
 
         header {
             position: fixed;
@@ -63,6 +87,7 @@
             transform-origin: right;
             transform: scaleX(0);
             transition: transform .5s;
+            text-decoration: underline;
         }
 
         .wrap {
@@ -202,8 +227,12 @@
             <img src="{{ url_for('static', filename='images/logo_home.png') }}" alt="Trulli" width="90" height="90">
         </h2>
         <nav class="navigation">
-            <a href="/">Home</a>
-            <a href="#">Game</a>
+            <a href="/">
+            <button class="login-popup" >Home</button>
+            </a>
+            <a href="/">
+            <button class="login-popup" href="/">Game</button>
+            </a>
         </nav>
     </header>
 
