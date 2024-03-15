@@ -1,5 +1,9 @@
 Connection: close
+<<<<<<<< HEAD:Game/build/web-cache/cd04994eac1a8fe2faf6a71f09bd3c72.head
 Content-Length: 6815648
+========
+Content-Length: 7577474
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/19cba7c472c00dc4b6be4f7314a04410.head
 Server: GitHub.com
 Content-Type: application/octet-stream
 permissions-policy: interest-cohort=()
@@ -7,6 +11,7 @@ x-origin-cache: HIT
 Last-Modified: Mon, 11 Mar 2024 19:01:30 GMT
 Access-Control-Allow-Origin: *
 Strict-Transport-Security: max-age=31556952
+<<<<<<<< HEAD:Game/build/web-cache/cd04994eac1a8fe2faf6a71f09bd3c72.head
 ETag: "65ef550a-67ffa0"
 expires: Fri, 15 Mar 2024 14:23:14 GMT
 Cache-Control: max-age=600
@@ -15,11 +20,27 @@ X-GitHub-Request-Id: 1092:A14AA:3B900E:40C78E:65F4577A
 Accept-Ranges: bytes
 Age: 1
 Date: Fri, 15 Mar 2024 14:13:15 GMT
+========
+ETag: "65ef550a-739f82"
+expires: Fri, 15 Mar 2024 14:23:05 GMT
+Cache-Control: max-age=600
+x-proxy-cache: MISS
+X-GitHub-Request-Id: 55B0:7AB0E:428AED:48B398:65F45771
+Accept-Ranges: bytes
+Age: 1
+Date: Fri, 15 Mar 2024 14:13:06 GMT
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/19cba7c472c00dc4b6be4f7314a04410.head
 Via: 1.1 varnish
-X-Served-By: cache-sof1510032-SOF
+X-Served-By: cache-sof1510036-SOF
 X-Cache: MISS
 X-Cache-Hits: 0
+<<<<<<<< HEAD:Game/build/web-cache/cd04994eac1a8fe2faf6a71f09bd3c72.head
 X-Timer: S1710511995.737840,VS0,VE1231
 Vary: Accept-Encoding
 X-Fastly-Request-ID: e608f8e48674075661c08e39f3ebcc51affdb11e
+========
+X-Timer: S1710511986.545009,VS0,VE1022
+Vary: Accept-Encoding
+X-Fastly-Request-ID: 7a56d0272db1dc886864bc79f077a1d3ac0c909a
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/19cba7c472c00dc4b6be4f7314a04410.head
 

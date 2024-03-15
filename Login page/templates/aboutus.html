@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card UI Blog Tiles Layout</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'sans-serif';
+        }
+        body {
+            background: url("{{ url_for('static', filename='images/gallerybackground.png') }}") no-repeat;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .navigation .login-popup {
+            width: 130px;
+            height: 50px;
+            background: transparent;
+            border: 2px solid white;
+            outline: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: white;
+            font-weight: 500;
+            margin-left: 40px;
+            transition: 0.5s;
+        }
+
+        .navigation .login-popup:hover {
+            background: white;
+            color: #0e3d49;
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }   
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 99;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            user-select: none;
+            margin-left: -5%;
+        }
+
+        .navigation a {
+            position: relative;
+            font-size: 1.5em;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 40px;
+        }
+
+        .navigation a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 100%;
+            height: 3px;
+            background: white;
+            border-radius: 5px;
+            transform-origin: right;
+            transform: scaleX(0);
+            transition: transform .5s;
+            text-decoration: underline;
+        }
+
+        .wrap {
+            margin: 50px auto 0 auto;
+            width: 100%;
+            display: flex;
+            align-items: space-around;
+            max-width: 1200px;
+        }
+
+        .tile {
+            width: 380px;
+            height: 380px;
+            margin: 10px;
+            background-color: #112ace;
+            display: inline-block;
+            background-size: cover;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease-out;
+            box-shadow: 0px 35px 77px -17px rgba(0, 0, 0, 0.44);
+            overflow: hidden;
+            color: white;
+            font-family: 'Roboto';
+        }
+
+        .tile img {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            transition: all 0.4s ease-out;
+        }
+
+        .tile .text {
+            position: absolute;
+            padding: 30px;
+            height: calc(100% - 60px);
+        }
+
+        .tile h1 {
+            font-weight: 300;
+            margin: 0;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tile h2 {
+            font-weight: 100;
+            margin: 20px 0 0 0;
+            font-style: italic;
+            transform: translateX(200px);
+        }
+
+        .tile p {
+            font-weight: 300;
+            margin: 20px 0 0 0;
+            line-height: 25px;
+            transform: translateX(-200px);
+            transition-delay: 0.2s;
+        }
+
+        .animate-text {
+            opacity: 0;
+            transition: all 0.6s ease-in-out;
+        }
+
+        .tile:hover {
+            box-shadow: 0px 35px 77px -17px rgba(0, 0, 0, 0.64);
+            transform: scale(1.05);
+        }
+
+        .tile:hover img {
+            opacity: 0.2;
+        }
+
+        .tile:hover .animate-text {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .dots {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            margin: 0 auto;
+            width: 30px;
+            height: 30px;
+            color: currentColor;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .dots span {
+            width: 5px;
+            height: 5px;
+            background-color: currentColor;
+            border-radius: 50%;
+            display: block;
+            opacity: 0;
+            transition: transform 0.4s ease-out, opacity 0.5s ease;
+            transform: translateY(30px);
+        }
+
+        .tile:hover span {
+            opacity: 1;
+            transform: translateY(0px);
+        }
+
+        .dots span:nth-child(1) {
+            transition-delay: 0.05s;
+        }
+
+        .dots span:nth-child(2) {
+            transition-delay: 0.1s;
+        }
+
+        .dots span:nth-child(3) {
+            transition-delay: 0.15s;
+        }
+
+        @media (max-width: 1000px) {
+            .wrap {
+                flex-direction: column;
+                width: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2 class="logo">
+            <img src="{{ url_for('static', filename='images/logo_home.png') }}" alt="Trulli" width="90" height="90">
+        </h2>
+        <nav class="navigation">
+            <a href="/">
+            <button class="login-popup" >Home</button>
+            </a>
+            <a href="/">
+            <button class="login-popup" href="/">Game</button>
+            </a>
+        </nav>
+    </header>
+
+    <div class="wrap">
+        <div class="tile">
+            <img src="{{ url_for('static', filename='images/trashintheocean.png') }}" />
+            <div class="text">
+                <h1>Pollution</h1>
+                <h2 class="animate-text">Human Impact on Oceans</h2>
+                <p class="animate-text">Over 5.25 Trillion Pieces of Plastic Trash Are in Our Oceans. </p>
+                <div class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tile">
+            <img src= "{{ url_for('static', filename='images/fish.png') }}" />
+            <div class="text">
+                <h1>Extinction of species underwater</h1>
+                <h2 class="animate-text">Sad truth</h2>
+                <p class="animate-text">"Extinction of marine species represents a tragic loss of biodiversity and disrupts the delicate balance of underwater ecosystems."</p>
+                <div class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tile">
+            <img src="{{ url_for('static', filename='images/deep.png') }}"/>
+            <div class="text">
+                <h1>Deepest part of the ocean</h1>
+                <h2 class="animate-text">Rock bottom?</h2>
+                <p class="animate-text">The deepest part of the ocean is called Challenger Deep and is located in the Mariana Trench in the Pacific Ocean. It is estimated to be about 11 100 m deep.</p>
+                <div class="dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
