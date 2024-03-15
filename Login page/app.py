@@ -25,6 +25,10 @@ init_db()
 def home():
     return render_template('index.html')
 
+@app.route('/facts.html')
+def fact():
+    return render_template('facts.html')
+
 # Route for registration
 @app.route('/register', methods=['POST'])
 def register():
@@ -61,7 +65,7 @@ def login():
     else:
         flash('Invalid email or password.')
 
-    return redirect('/')
+    #return redirect('/')
 
 if __name__ == '__main__':
     app.run(debug=True)
