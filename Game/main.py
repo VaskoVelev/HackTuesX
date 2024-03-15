@@ -159,6 +159,7 @@ bulletHitGroup = pygame.sprite.Group()
 myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score)
 
 myShark = Shark(1700, 300, 160, 80, trashGroup)
+myBoss = Boss(300, 300, 320, 160, trashGroup)
 
 def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font.Font('Game/font/Pixeltype.ttf')):
     dropShadowOffset = 3 + (size // 15)
@@ -182,7 +183,6 @@ def drawWindow():
         drawMenu()
         
     elif gameState == RUNNING:
-        
         spawnTrash()
         updateBG()
         myFish.update()
@@ -193,8 +193,11 @@ def drawWindow():
         WIN.blit(background, (bgX, 0))
         WIN.blit(background, (bgX + WIDTH, 0))
         myFish.draw(WIN)
-        trashGroup.draw(WIN)
         myShark.draw(WIN)
+        trashGroup.draw(WIN)
+        if myFish.score > 2000:
+            myBoss.update()
+            myBoss.draw(WIN)
         bulletGroup.draw(WIN)
         bulletHitGroup.draw(WIN)
         life = myFish.life
@@ -206,58 +209,19 @@ def drawWindow():
     pygame.display.update()
 
 def main():
-    global gameState, boss_spawned
-    boss_spawned = False
-    
-    pygame.init()  # Initialize pygame here
-
     run = True
     while run:
-        try:
-            print("Current score:", myFish.score)
-            clock.tick(FPS)
-            
-            # Event handling
+        clock.tick(FPS)
+        if gameState == MENU:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        gameState = PAUSED
+        if gameState == RUNNING:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
 
-            if gameState == MENU:
-                # Handle menu events and draw menu
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        for button in buttonGroup:
-                            button.handleClick(pygame.mouse.get_pos())
-                drawWindow()
-                
-            elif gameState == RUNNING:
-                # Handle running events and update/draw game elements
-                for event in pygame.event.get():
-                    pass  # Add event handling if needed
-                    
-                drawWindow()
-
-                if myFish.score >= 2000 and not boss_spawned:
-                    # Spawn the boss
-                    myBoss = Boss(1700, 300, 160, 80, trashGroup)
-                    boss_spawned = True
-
-                if boss_spawned:
-                    # Update boss
-                    myBoss.update()
-                    myBoss.draw(WIN)
-
-            elif gameState == PAUSED:
-                # Handle paused state
-                pass  # Add pause state handling if needed
-                
-        except Exception as e:
-            print("Lost all of your lives :(", e)
-            pygame.quit()
-            exit()
-ImportWarning
+        drawWindow()
 main()
