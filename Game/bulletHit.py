@@ -6,7 +6,7 @@ class BulletHit(pygame.sprite.Sprite):
         self.images = []
         self.frameCount = 0
         self.frameIndex = 0
-        self.animationSpeed = 10
+        self.animationSpeed = 5
         self.desiredWidth = 70
         self.desiredHeight = 70
         self.loadAnimation()
