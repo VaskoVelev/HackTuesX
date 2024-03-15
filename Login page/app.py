@@ -38,6 +38,10 @@ def aboutus():
     return render_template('aboutus.html')
 
 # Route for registration
+@app.route('/game')
+def game():
+    return redirect('http://127.0.0.1:5501/Game/build/web/index.html')
+
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form['username']
@@ -66,7 +70,7 @@ def register():
 
     conn.close()
 
-    return redirect('/')
+    return redirect('/game')
 
 # Route for login
 @app.route('/login', methods=['POST'])
@@ -81,7 +85,7 @@ def login():
     conn.close()
 
     if user:
-        return redirect('/')
+        return redirect('/game')
     
     return redirect('/loginfail')
 
