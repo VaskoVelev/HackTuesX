@@ -33,6 +33,11 @@ def fact():
 def testfail():
     return render_template('loginfail.html')
 
+@app.route('/aboutus.html')
+def aboutus():
+    return render_template('aboutus.html')
+
+# Route for registration
 @app.route('/game')
 def game():
     return redirect('http://127.0.0.1:5501/Game/build/web/index.html')
