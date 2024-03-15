@@ -25,16 +25,16 @@ class Fish(pygame.sprite.Sprite):
         self.frames_right = []
 
         for i in range(1, 4):
-            fish_image = pygame.image.load(f"Game/spriteSheets/fish/basic_fish/up/fish{i}.png").convert_alpha()
+            fish_image = pygame.image.load(f"spriteSheets/fish/basic_fish/up/fish{i}.png").convert_alpha()
             self.frames_up.append(fish_image)
 
-            fish_image = pygame.image.load(f"Game/spriteSheets/fish/basic_fish/down/fish{i}.png").convert_alpha()
+            fish_image = pygame.image.load(f"spriteSheets/fish/basic_fish/down/fish{i}.png").convert_alpha()
             self.frames_down.append(fish_image)
 
-            fish_image = pygame.image.load(f"Game/spriteSheets/fish/basic_fish/left/fish{i}.png").convert_alpha()
+            fish_image = pygame.image.load(f"spriteSheets/fish/basic_fish/left/fish{i}.png").convert_alpha()
             self.frames_left.append(fish_image)
 
-            fish_image = pygame.image.load(f"Game/spriteSheets/fish/basic_fish/right/fish{i}.png").convert_alpha()
+            fish_image = pygame.image.load(f"spriteSheets/fish/basic_fish/right/fish{i}.png").convert_alpha()
             self.frames_right.append(fish_image)
 
         self.image = self.frames_up[self.frameIndex]
