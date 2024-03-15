@@ -1,6 +1,5 @@
 import pygame
 import random
-from bullets import Bullet
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, trashGroup):
@@ -41,7 +40,7 @@ class Boss(pygame.sprite.Sprite):
             self.rect.x = randomX
             self.rect.y = randomY
         else:
-            self.rect.x -= 8
+            self.rect.x -= 2
         trashCollide = pygame.sprite.spritecollide(self, self.trashGroup, False)
         for trash in trashCollide:
             trash.kill()
