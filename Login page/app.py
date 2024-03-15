@@ -29,6 +29,10 @@ def home():
 def fact():
     return render_template('facts.html')
 
+@app.route('/aboutus.html')
+def aboutus():
+    return render_template('aboutus.html')
+
 # Route for registration
 @app.route('/register', methods=['POST'])
 def register():
