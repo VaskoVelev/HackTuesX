@@ -25,6 +25,9 @@ gameState = MENU
 menuOptions = ["Start", "Settings", "Quit"]
 
 buttonGroup = pygame.sprite.Group()
+bulletGroup = pygame.sprite.Group()
+
+boss_fight_started = False
 
 def drawMenu():
     global gameState
@@ -159,7 +162,7 @@ bulletHitGroup = pygame.sprite.Group()
 myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score, "boss1")
 
 myShark = Shark(1700, 300, 160, 80, trashGroup)
-myBoss = Boss(1300, 300, 320, 160, trashGroup)
+myBoss = Boss(1300, 300, 320, 160, trashGroup, bulletGroup)
 
 def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font.Font('Game/font/Pixeltype.ttf')):
     dropShadowOffset = 3 + (size // 15)
@@ -171,8 +174,9 @@ def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font
     textBitmap = textFont.render(text, True, color)
     screen.blit(textBitmap, (x, y) )
 
+
 def drawWindow():
-    global distance, gameState
+    global distance, gameState, boss_fight_started
     if gameState == MENU:
         updateBG()
         WIN.blit(menuBackground, (bgX, 0))
@@ -182,11 +186,10 @@ def drawWindow():
         drawMenu()
         
     elif gameState == RUNNING:
-        print("RUNNING")
+        updateBG()
         if myFish.boss_mode != "boss 1":
-            print("2")
+            print(myFish.boss_mode)
             spawnTrash()
-            updateBG()
             myFish.update()
             updateTrash(trashGroup)
             myShark.update()
@@ -201,23 +204,28 @@ def drawWindow():
             bulletHitGroup.draw(WIN)
             life = myFish.life
             score = myFish.score
-            if score > 500:
-                myFish.boss_mode = "boss 1"
             distance = int(pygame.time.get_ticks() / 1000)
             displayNavBar(life, score)
             if life <= 0:
-                gameState = MENU
+                pygame.quit()
+            elif score > 500 and boss_fight_started == False:
+                myFish.boss_mode = "boss 1"
+                boss_fight_started = True
         elif myFish.boss_mode == "boss 1":
+            print(myFish.boss_mode)
             spawnTrash()
-            updateBG()
             myFish.update()
-            myBoss.update()
+            if myBoss.hit_count < 9:
+                myBoss.update()
             bulletGroup.update()
             bulletHitGroup.update()
             WIN.blit(background, (bgX, 0))
             WIN.blit(background, (bgX + WIDTH, 0))
             myFish.draw(WIN)
-            myBoss.draw(WIN)
+            if myBoss.hit_count < 9:
+                myBoss.draw(WIN)
+            if myBoss.hit_count == 9:
+                myFish.boss_mode = "basic"
             bulletGroup.draw(WIN)
             bulletHitGroup.draw(WIN)
             life = myFish.life
@@ -225,7 +233,8 @@ def drawWindow():
             distance = int(pygame.time.get_ticks() / 1000)
             displayNavBar(life, score)
             if life <= 0:
-                gameState = MENU
+                pygame.quit()
+
     pygame.display.update()
 
 def main():
