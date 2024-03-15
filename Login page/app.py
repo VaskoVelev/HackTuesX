@@ -33,9 +33,9 @@ def fact():
 def testfail():
     return render_template('loginfail.html')
 
-@app.route('/aboutus.html')
-def aboutus():
-    return render_template('aboutus.html')
+@app.route('/gallery.html')
+def gallery():
+    return render_template('gallery.html')
 
 # Route for registration
 @app.route('/game')
