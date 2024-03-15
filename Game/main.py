@@ -156,7 +156,7 @@ def updateTrash(trashList):
 bulletGroup = pygame.sprite.Group()
 bulletHitGroup = pygame.sprite.Group()
 
-myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score)
+myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score, "boss1")
 
 myShark = Shark(1700, 300, 160, 80, trashGroup)
 myBoss = Boss(1300, 300, 320, 160, trashGroup)
@@ -172,10 +172,9 @@ def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font
     screen.blit(textBitmap, (x, y) )
 
 def drawWindow():
-    global distance
+    global distance, gameState
     if gameState == MENU:
         updateBG()
-
         WIN.blit(menuBackground, (bgX, 0))
         WIN.blit(menuBackground, (bgX+WIDTH, 0))
         dropShadowText(WIN, "Aqua", 108, WIDTH//2 - 200, 100, (5, 195, 221), (22, 27, 99) )
@@ -183,29 +182,50 @@ def drawWindow():
         drawMenu()
         
     elif gameState == RUNNING:
-        spawnTrash()
-        updateBG()
-        myFish.update()
-        updateTrash(trashGroup)
-        myShark.update()
-        bulletGroup.update()
-        bulletHitGroup.update()
-        WIN.blit(background, (bgX, 0))
-        WIN.blit(background, (bgX + WIDTH, 0))
-        myFish.draw(WIN)
-        trashGroup.draw(WIN)
-        myShark.draw(WIN)
-        bulletGroup.draw(WIN)
-        bulletHitGroup.draw(WIN)
-        life = myFish.life
-        score = myFish.score
-        if score > 500:
+        print("RUNNING")
+        if myFish.boss_mode != "boss 1":
+            print("2")
+            spawnTrash()
+            updateBG()
+            myFish.update()
+            updateTrash(trashGroup)
+            myShark.update()
+            bulletGroup.update()
+            bulletHitGroup.update()
+            WIN.blit(background, (bgX, 0))
+            WIN.blit(background, (bgX + WIDTH, 0))
+            myFish.draw(WIN)
+            trashGroup.draw(WIN)
+            myShark.draw(WIN)
+            bulletGroup.draw(WIN)
+            bulletHitGroup.draw(WIN)
+            life = myFish.life
+            score = myFish.score
+            if score > 500:
+                myFish.boss_mode = "boss 1"
+            distance = int(pygame.time.get_ticks() / 1000)
+            displayNavBar(life, score)
+            if life <= 0:
+                gameState = MENU
+        elif myFish.boss_mode == "boss 1":
+            spawnTrash()
+            updateBG()
+            myFish.update()
             myBoss.update()
+            bulletGroup.update()
+            bulletHitGroup.update()
+            WIN.blit(background, (bgX, 0))
+            WIN.blit(background, (bgX + WIDTH, 0))
+            myFish.draw(WIN)
             myBoss.draw(WIN)
-        distance = int(pygame.time.get_ticks() / 1000)
-        displayNavBar(life, score)
-        if life <= 0:
-           pygame.quit() 
+            bulletGroup.draw(WIN)
+            bulletHitGroup.draw(WIN)
+            life = myFish.life
+            score = myFish.score
+            distance = int(pygame.time.get_ticks() / 1000)
+            displayNavBar(life, score)
+            if life <= 0:
+                gameState = MENU
     pygame.display.update()
 
 def main():
@@ -224,4 +244,6 @@ def main():
                     exit()
 
         drawWindow()
+
 main()
+
