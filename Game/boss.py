@@ -16,7 +16,7 @@ class Boss(pygame.sprite.Sprite):
         self.frames = []
 
         for i in range(1, 4):
-            boss_image = pygame.image.load(f"Game/spriteSheets/boss/boss{i}.png").convert_alpha()
+            boss_image = pygame.image.load(f"spriteSheets/boss/boss{i}.png").convert_alpha()
             self.frames.append(boss_image)
 
         self.image = self.frames[self.frameIndex]

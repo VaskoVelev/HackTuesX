@@ -7,6 +7,7 @@ from bullets import Bullet
 from bulletHit import BulletHit
 from button import Button
 from boss import Boss
+import asyncio
 
 pygame.init()
 
@@ -16,7 +17,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 clock = pygame.time.Clock()
 pygame.display.set_caption("Aqua Clean-up")
-pixelFont = pygame.font.Font('Game/font/Pixeltype.ttf', 48)
+pixelFont = pygame.font.Font('font/Pixeltype.ttf', 48)
 
 MENU = "menu"
 RUNNING = "running"
@@ -53,8 +54,8 @@ def drawMenu():
         
 
 
-background = pygame.transform.scale(pygame.image.load('Game/spriteSheets/underwater.png'), (WIDTH, 700))
-menuBackground = pygame.transform.scale(pygame.image.load('Game/spriteSheets/Back.png'), (WIDTH, HEIGHT))
+background = pygame.transform.scale(pygame.image.load('spriteSheets/underwater.png'), (WIDTH, 700))
+menuBackground = pygame.transform.scale(pygame.image.load('spriteSheets/Back.png'), (WIDTH, HEIGHT))
 scrollSpeed = 2
 bgX = 0
 
@@ -69,7 +70,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 navbarWidth = 1400
 navbarHeight = 75
-navbarFrame = pygame.transform.scale(pygame.image.load('Game/spriteSheets/frame.png'), (navbarWidth + 10 , navbarHeight ))
+navbarFrame = pygame.transform.scale(pygame.image.load('spriteSheets/frame.png'), (navbarWidth + 10 , navbarHeight ))
 navbarRect = pygame.Rect(0, 0, navbarWidth , navbarHeight - 10)
 navbarFont = pixelFont
 navbarColor = (100, 100, 100)
@@ -107,11 +108,11 @@ def displayNavBar(life, score):
 
 trashGroup = pygame.sprite.Group()
 maxTrashCount = 38
-trashList = ['Game/spriteSheets/trash/beer.png', 'Game/spriteSheets/trash/bottle.png', 'Game/spriteSheets/trash/box.png', 
-               'Game/spriteSheets/trash/cup.png', 'Game/spriteSheets/trash/jar.png', 'Game/spriteSheets/trash/largeCan.png', 
-               'Game/spriteSheets/trash/laundry.png', 'Game/spriteSheets/trash/milk.png', 'Game/spriteSheets/trash/mug.png', 
-               'Game/spriteSheets/trash/news.png', 'Game/spriteSheets/trash/pizzabox.png', 'Game/spriteSheets/trash/smallCan.png', 
-               'Game/spriteSheets/trash/sodaCan.png', 'Game/spriteSheets/trash/sprayCan.png', 'Game/spriteSheets/trash/waterbottle.png' ]
+trashList = ['spriteSheets/trash/beer.png', 'spriteSheets/trash/bottle.png', 'spriteSheets/trash/box.png', 
+               'spriteSheets/trash/cup.png', 'spriteSheets/trash/jar.png', 'spriteSheets/trash/largeCan.png', 
+               'spriteSheets/trash/laundry.png', 'spriteSheets/trash/milk.png', 'spriteSheets/trash/mug.png', 
+               'spriteSheets/trash/news.png', 'spriteSheets/trash/pizzabox.png', 'spriteSheets/trash/smallCan.png', 
+               'spriteSheets/trash/sodaCan.png', 'spriteSheets/trash/sprayCan.png', 'spriteSheets/trash/waterbottle.png' ]
 
 def spawnTrash():
     if len(trashGroup) < maxTrashCount: 
@@ -161,9 +162,9 @@ myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, s
 myShark = Shark(1700, 300, 160, 80, trashGroup)
 myBoss = Boss(1300, 300, 320, 160, trashGroup)
 
-def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font.Font('Game/font/Pixeltype.ttf')):
+def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font.Font('font/Pixeltype.ttf')):
     dropShadowOffset = 3 + (size // 15)
-    textFont = pygame.font.Font('Game/font/Pixeltype.ttf', 84)
+    textFont = pygame.font.Font('font/Pixeltype.ttf', 84)
 
     textBitmap = textFont.render(text, True, dropColor)
     screen.blit(textBitmap, (x+dropShadowOffset, y+dropShadowOffset) )
@@ -228,7 +229,7 @@ def drawWindow():
                 gameState = MENU
     pygame.display.update()
 
-def main():
+async def main():
     run = True
     while run:
         clock.tick(FPS)
@@ -244,6 +245,6 @@ def main():
                     exit()
 
         drawWindow()
+        await asyncio.sleep(0)
 
-main()
-
+asyncio.run(main())
