@@ -14,10 +14,10 @@
 
     <header>
         <h2 class="logo">
-            <img src="{{ url_for('static', filename='logo_home.png') }}" alt="Trulli" width="100" height="100">
+            <img src="{{ url_for('static', filename='images/logo_home.png') }}" alt="Trulli" width="100" height="100">
         </h2>
         <nav class="navigation">
-            <a href="{{ url_for('static', filename='templates/index.html') }}">Home</a>
+            <a href="index.html">Home</a>
             <a href="#">Game</a>
             <a href="#">About us</a>
         </nav>
@@ -33,7 +33,7 @@
             </div>
           
             <div class="gallery">
-            <img src="shark.png" alt="Forest">
+            <img src="{{ url_for('static', filename='images/shark.png') }}" alt="Forest">
             
             <div class="desc">Depending On The Species, Sharks Can Give Birth In Three Different Ways!</div>
             </div>
