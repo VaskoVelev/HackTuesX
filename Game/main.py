@@ -17,7 +17,12 @@ HEIGHT = 650
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 clock = pygame.time.Clock()
-pygame.display.set_caption("Aqua Clean-up")
+
+username_path = 'Game/username/username.txt'
+with open(username_path, "r") as file:
+    username = str(file.read())
+
+pygame.display.set_caption(f"{username}")
 pixelFont = pygame.font.Font('font/Pixeltype.ttf', 48)
 
 MENU = "menu"
@@ -183,7 +188,7 @@ with open(file_path, "r") as file:
     high_score = int(file.read())
 
 def drawWindow():
-    global distance, gameState, boss_fight_started, death, high_score
+    global distance, gameState, boss_fight_started, death, high_score, username
     if gameState == MENU:
         updateBG()
         WIN.blit(menuBackground, (bgX, 0))
