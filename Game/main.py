@@ -8,6 +8,7 @@ from bulletHit import BulletHit
 from button import Button
 from boss import Boss
 import asyncio
+import os
 
 pygame.init()
 
@@ -29,6 +30,7 @@ buttonGroup = pygame.sprite.Group()
 bulletGroup = pygame.sprite.Group()
 
 boss_fight_started = False
+death = False
 
 def drawMenu():
     global gameState
@@ -154,13 +156,15 @@ def spawnTrash():
 
             trashGroup.add(newTrash)
 
+file_path = 'high_score/playerscore.txt'
+
 def updateTrash(trashList):
     for trash in trashList:
         trash.update()
 bulletGroup = pygame.sprite.Group()
 bulletHitGroup = pygame.sprite.Group()
 
-myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score, "boss1")
+myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, 3, 0, "boss1")
 
 myShark = Shark(1700, 300, 160, 80, trashGroup)
 myBoss = Boss(1300, 300, 320, 160, trashGroup, bulletGroup)
@@ -175,21 +179,25 @@ def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font
     textBitmap = textFont.render(text, True, color)
     screen.blit(textBitmap, (x, y) )
 
+with open(file_path, "r") as file:
+    high_score = int(file.read())
 
 def drawWindow():
-    global distance, gameState, boss_fight_started
+    global distance, gameState, boss_fight_started, death, high_score
     if gameState == MENU:
         updateBG()
         WIN.blit(menuBackground, (bgX, 0))
         WIN.blit(menuBackground, (bgX+WIDTH, 0))
+        dropShadowText(WIN, f"Score: {myFish.score}", 108, WIDTH//2 - 400, 600, (5, 195, 221), (22, 27, 99) )
+        dropShadowText(WIN, f"High score: {high_score}", 108, WIDTH//2 + 250, 600, (5, 195, 221), (22, 27, 99) )        
         dropShadowText(WIN, "Aqua", 108, WIDTH//2 - 200, 100, (5, 195, 221), (22, 27, 99) )
         dropShadowText(WIN, "Clean-up", 108, WIDTH//2 - 125, 200, (5, 195, 221), (22, 27, 99) )
         drawMenu()
+
         
     elif gameState == RUNNING:
         updateBG()
-        if myFish.boss_mode != "boss 1":
-            print(myFish.boss_mode)
+        if myFish.boss_mode != "boss 1" and death == False:
             spawnTrash()
             myFish.update()
             updateTrash(trashGroup)
@@ -205,11 +213,16 @@ def drawWindow():
             bulletHitGroup.draw(WIN)
             life = myFish.life
             score = myFish.score
+            if score > high_score:
+                high_score = score
+                with open(file_path, "w") as myfile:
+                    myfile.write(str(high_score))
             distance = int(pygame.time.get_ticks() / 1000)
             displayNavBar(life, score)
             if life <= 0:
-                pygame.quit()
-            elif score > 500 and boss_fight_started == False:
+                gameState = MENU
+                death = True
+            elif score > 2000 and boss_fight_started == False:
                 myFish.boss_mode = "boss 1"
                 boss_fight_started = True
         elif myFish.boss_mode == "boss 1":
@@ -234,7 +247,43 @@ def drawWindow():
             distance = int(pygame.time.get_ticks() / 1000)
             displayNavBar(life, score)
             if life <= 0:
-                pygame.quit()
+                gameState = MENU
+                death = True
+        elif death == True:
+            myFish.score = 0
+            myFish.life = 3
+            distance = 0
+            myFish.rect.x = 250
+            myFish.rect.y = 200
+            death = "continue"
+        elif death == "continue":
+            spawnTrash()
+            myFish.update()
+            updateTrash(trashGroup)
+            myShark.update()
+            bulletGroup.update()
+            bulletHitGroup.update()
+            WIN.blit(background, (bgX, 0))
+            WIN.blit(background, (bgX + WIDTH, 0))
+            myFish.draw(WIN)
+            trashGroup.draw(WIN)
+            myShark.draw(WIN)
+            bulletGroup.draw(WIN)
+            bulletHitGroup.draw(WIN)
+            life = myFish.life
+            score = myFish.score
+            if score > high_score:
+                high_score = score
+                with open(file_path, "w") as file:
+                    file.write(str(high_score))
+            distance = int(pygame.time.get_ticks() / 1000)
+            displayNavBar(life, score)
+            if life <= 0:
+                gameState = MENU
+                death = True
+            if score > 2000 and boss_fight_started == False:
+                myFish.boss_mode = "boss 1"
+                boss_fight_started = True
 
     pygame.display.update()
 

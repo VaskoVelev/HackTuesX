@@ -19,7 +19,13 @@ import json
 PYCONFIG_PKG_INDEXES_DEV = ["http://localhost:<port>/archives/repo/"]
 # normal index or PYGPY env is handled after env conversion around line 255
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+ENABLE_USER_SITE = False
+
+# the sim does not preload assets and cannot access currentline
+========
 # the sim does not ospreload assets and cannot access currentline
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 # unless using https://github.com/pmp-p/aioprompt/blob/master/aioprompt/__init__.py
 # or a thread
 
@@ -65,7 +71,7 @@ builtins.overloaded = overloaded
 
 
 def DBG(*argv):
-    if PyConfig.dev_mode > 0:
+    if PyConfig.dev_mode:
         print(*argv)
 
 
@@ -199,20 +205,22 @@ try:
 except NameError:
     PyConfig = None
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+    aio.cross.simulator = False
+    sys.argv = PyConfig.pop("argv", [])
+
+except Exception as e:
+    sys.print_exception(e)
+========
 # in simulator there's no PyConfig
 # would need to get one from live cpython
 if PyConfig is None:
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
     # TODO: build a pyconfig extracted from C here
     PyConfig = {}
     PyConfig["dev_mode"] = 1
     PyConfig["run_filename"] = "main.py"
-
-    # TODO: use location of python js module.
-    if __UPY__:
-        PyConfig["executable"] = "upy"
-    else:
-        PyConfig["executable"] = sys.executable
-
+    PyConfig["executable"] = sys.executable
     PyConfig["interactive"] = 1
     print(" - running in wasm simulator - ")
     aio.cross.simulator = True
@@ -260,8 +268,6 @@ else:
 PyConfig["imports_ready"] = False
 PyConfig["pygbag"] = 0
 
-PyConfig.setdefault("user_site_directory", 0)
-
 
 class shell:
     # pending async tasks
@@ -271,18 +277,20 @@ class shell:
     runner = None
     is_interactive = None
 
-    if aio.cross.simulator or not len(sys.argv):
+    if aio.cross.simulator:
         ROOT = os.getcwd()
         HOME = os.getcwd()
     else:
         ROOT = f"/data/data/{sys.argv[0]}"
         HOME = f"/data/data/{sys.argv[0]}/assets"
 
+    ticks = 0
     pgzrunning = None
 
     @classmethod
     def mktemp(cls, suffix=""):
-        return aio.filelike.mktemp(suffix)
+        cls.ticks += 1
+        return f"/tmp/tmp-{cls.ticks}{suffix}"
 
     @classmethod
     def cat(cls, *argv):
@@ -497,9 +505,8 @@ class shell:
                 print("a program is already running, using 'stop' cmd before retrying")
                 cls.stop()
                 cls.pgzrunning = None
-                args = [cmd]
-                args.extend(argv)
-                aio.defer(cls.spawn, args, env, delay=500)
+                aio.defer(cls.spawn, (cmd, *argv), env, delay=500)
+
             else:
                 execfile(cmd)
             return True
@@ -530,7 +537,6 @@ class shell:
 
         for zip in argv:
             with zipfile.ZipFile(zip, "r") as zip_ref:
-                zip_ref.printdir()
                 zip_ref.extractall(os.getcwd())
 
     @classmethod
@@ -556,11 +562,10 @@ class shell:
 
     @classmethod
     def strace(cls, *argv, **env):
-        import aio.tracer
+        import aio.trace
 
-        print("497: trace on")
-        sys.settrace(aio.tracer.calls)
-        return True
+        sys.settrace(aio.trace.calls)
+        return cls.parse_sync(argv, env)
 
     @classmethod
     def mute(cls, *argv, **env):
@@ -665,7 +670,29 @@ ________________________
             aio.perf_index = perf_index()
             aio.create_task(aio.perf_index)
 
+    # cannot deal with HTML trail properly
+    #        @classmethod
+    #        async def preload_file(cls, main, callback=None):
+    #            # get a relevant list of modules likely to be imported
+    #            # and prefetch them if found in repo trees
+    #            imports = TopLevel_async_handler.list_imports(code=None, file=main)
+    #            print(f"579: missing imports: {list(imports)}")
+    #            await TopLevel_async_handler.async_imports(callback, *imports)
+    #            PyConfig.imports_ready = True
+    #            return True
+
     @classmethod
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+    async def preload_code(cls, code, callback=None):
+        # get a relevant list of modules likely to be imported
+        # and prefetch them if found in repo trees
+        #
+        #            for want in TopLevel_async_handler.list_imports(code, file=None):
+        #                DBG(f"605: preloading import {want=} {callback=}")
+        #                await TopLevel_async_handler.async_imports(callback, want)
+
+        await TopLevel_async_handler.async_imports(callback, *TopLevel_async_handler.list_imports(code, file=None))
+========
     async def preload_code(cls, code, callback=None, loaderhome=".", hint=""):
         # get a relevant list of modules likely to be imported
         PyConfig.dev_mode = 1
@@ -725,20 +752,24 @@ ________________________
 
             aio.pep0723.do_patches()
 
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         PyConfig.imports_ready = True
         return True
 
     @classmethod
     def interactive(cls, prompt=False):
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+========
         if prompt:
             aio.toplevel.handler.mute_state = False
             aio.toplevel.handler.muted = False
 
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         if cls.is_interactive:
             return
         # if you don't reach that step
         # your main.py has an infinite sync loop somewhere !
-        DBG("651: starting EventTarget in a few seconds")
+        DBG("642: starting EventTarget in a few seconds")
 
         print()
         aio.toplevel.handler.instance.banner()
@@ -757,6 +788,9 @@ ________________________
 
     @classmethod
     async def runpy(cls, main, *args, **kw):
+        code = ""
+        shell.pgzrunning = None
+
         def check_code(file_name):
             nonlocal code
             maybe_sync = False
@@ -774,21 +808,24 @@ ________________________
                     shell.pgzrunning = True
 
                 if code.find("asyncio.run") < 0:
-                    DBG("606: possibly synchronous code found")
+                    DBG("622: possibly synchronous code found")
                     maybe_sync = True
 
                 has_pygame = code.find("display.flip(") > 0 or code.find("display.update(") > 0
 
                 if maybe_sync and has_pygame:
-                    DBG("694: possibly synchronous+pygame code found")
+                    DBG("628: possibly synchronous+pygame code found")
                     return False
             return True
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+========
         code = ""
         shell.pgzrunning = None
 
         DBG(f"690: : runpy({main=})")
         # REMOVE THAT IT SHOULD BE DONE IN SIM ANALYSER AND HANDLED PROPERLY
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         if not check_code(main):
             for base in ("pygame", "pg"):
                 for func in ("flip", "update"):
@@ -803,23 +840,25 @@ ________________________
         cls.HOME = Path(realpath).parent
         os.chdir(cls.HOME)
 
-        # TODO: should be $0 / sys.argv[0] from there and while running
-        kw.setdefault("hint", main)
-        # get requirements
         await cls.preload_code(code, **kw)
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+        if TopLevel_async_handler.instance:
+            DBG("646: starting shell")
+            TopLevel_async_handler.instance.start_console(shell)
+========
         # get an async executor to catch import errors
         if aio.toplevel.handler.instance:
             DBG("715: starting shell")
             aio.toplevel.handler.instance.start_console(shell)
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         else:
-            pdb("718: no async handler loader, starting a default async console")
+            pdb("651: no async handler loader, starting a default async console")
             shell.debug()
             await aio.toplevel.handler.start_toplevel(platform.shell, console=True)
 
-        # TODO: check if that thing really works
         if shell.pgzrunning:
-            DBG("728 : pygame zero detected")
+            print("600 : pygame zero detected")
             __main__ = __import__("__main__")
             sys._pgzrun = True
             sys.modules["pgzrun"] = type(__main__)("pgzrun")
@@ -833,25 +872,39 @@ ________________________
 
             pgzero.runner.prepare_mod(__main__)
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+        TopLevel_async_handler.instance.eval(code)
+
+        if not TopLevel_async_handler.muted:
+========
         # finally eval async
         aio.toplevel.handler.instance.eval(code)
 
         # go back to prompt
         if not aio.toplevel.handler.muted:
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
             print("going interactive")
-            DBG("746: TODO detect input/print to select repl debug")
+            DBG("643: TODO detect input/print to select repl debug")
             cls.interactive()
 
         return code
 
     @classmethod
     async def source(cls, main, *args, **kw):
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+        TopLevel_async_handler.muted = True
+        try:
+            return await cls.runpy(main, *args, **kw)
+        finally:
+            TopLevel_async_handler.muted = False
+========
         # this is not interactive turn off prompting
         aio.toplevel.handler.muted = True
         try:
             return await cls.runpy(main, *args, **kw)
         finally:
             aio.toplevel.handler.muted = aio.toplevel.handler.mute_state
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
     @classmethod
     def parse_sync(shell, line, **env):
@@ -921,33 +974,18 @@ ________________________
             await sub
 
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+PyConfig["shell"] = shell
+========
 import os
 
 os.shell = shell
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 builtins.shell = shell
 # end shell
 
 
-if __UPY__:
-    import types
-
-    class SimpleNamespace:
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-        def __repr__(self):
-            keys = sorted(self.__dict__)
-            items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-            return "{}({})".format(type(self).__name__, ", ".join(items))
-
-        def __eq__(self, other):
-            return self.__dict__ == other.__dict__
-
-    types.SimpleNamespace = SimpleNamespace
-else:
-    from types import SimpleNamespace
-
+from types import SimpleNamespace
 import builtins
 
 builtins.PyConfig = SimpleNamespace(**PyConfig)
@@ -962,10 +1000,6 @@ random.seed(1)
 import __EMSCRIPTEN__ as platform
 
 platform.shell = shell
-import aio.filelike
-
-platform.fopen = aio.filelike.fopen
-platform.sopen = aio.filelike.sopen
 
 if not aio.cross.simulator:
 
@@ -981,7 +1015,7 @@ if not aio.cross.simulator:
             url = "http:/" + url[5:]
         return url
 
-    platform.fix_url = fix_url
+    __EMSCRIPTEN__.fix_url = fix_url
 
     del fix_url
 
@@ -1024,7 +1058,7 @@ if not aio.cross.simulator:
 
         def browser_open_file(target=None, accept="*"):
             if target:
-                platform.EventTarget.addEventListener(window, "upload", target)
+                platform.EventTarget.addEventListener("upload", target)
             platform.window.dlg_multifile.click()
 
         webbrowser.open_file = browser_open_file
@@ -1080,6 +1114,88 @@ if not aio.cross.simulator:
 
         from platform import window, document, ffi
 
+        class fopen:
+            flags = {
+                #                'mode': "no-cors",
+                "redirect": "follow",
+                #                'referrerPolicy': 'no-referrer',
+                "credentials": "omit",
+            }
+
+            def __init__(self, maybe_url, mode="r", flags=None):
+                self.url = __EMSCRIPTEN__.fix_url(maybe_url)
+                self.mode = mode
+                flags = flags or self.__class__.flags
+                print(f'849: fopen: fetching "{self.url}" with {flags=}')
+                self.flags = ffi(flags)
+                self.tmpfile = None
+
+            async def __aenter__(self):
+                import platform
+
+                if "b" in self.mode:
+                    self.tmpfile = shell.mktemp()
+                    cf = platform.window.cross_file(self.url, self.tmpfile, self.flags)
+                    content = await platform.jsiter(cf)
+                    self.filelike = open(content, "rb")
+                    self.filelike.path = content
+
+                    def rename_to(target):
+                        print("rename_to", content, target)
+                        # will be closed
+                        self.filelike.close()
+                        os.rename(self.tmpfile, target)
+                        self.tmpfile = None
+                        del self.filelike.rename_to
+                        return target
+
+                else:
+                    import io
+
+                    jsp = platform.window.fetch(self.url, self.flags)
+                    response = await platform.jsprom(jsp)
+                    content = await platform.jsprom(response.text())
+                    if len(content) == 4:
+                        print("585 fopen", f"Binary {self.url=} ?")
+                    self.filelike = io.StringIO(content)
+
+                    def rename_to(target):
+                        with open(target, "wb") as data:
+                            date.write(self.filelike.read())
+                        del self.filelike.rename_to
+                        return target
+
+                self.filelike.rename_to = rename_to
+                return self.filelike
+
+            async def __aexit__(self, *exc):
+                if self.tmpfile:
+                    self.filelike.close()
+                    try:
+                        os.unlink(self.tmpfile)
+                    except FileNotFoundError as e:
+                        print("895: async I/O error", e)
+                del self.filelike, self.url, self.mode, self.tmpfile
+                return False
+
+        platform.fopen = fopen
+
+        async def jsiter(iterator):
+            mark = None
+            value = undefined
+            while mark != undefined:
+                value = mark
+                await asyncio.sleep(0)
+                mark = next(iterator, undefined)
+            return value
+
+        platform.jsiter = jsiter
+
+        async def jsprom(prom):
+            return await jsiter(platform.window.iterator(prom))
+
+        platform.jsprom = jsprom
+
         apply_patches()
 
     del apply_patches
@@ -1094,25 +1210,18 @@ if not aio.cross.simulator:
     import os
 
     # set correct umask ( emscripten default is 0 )
-    if hasattr(os, "umask"):
-        os.umask(0o022)  # already done in aio.toplevel
-        import zipfile
-    else:
-        pdb("1010: missing os.umask")
-        pdb("1011: missing zipfile")
+    os.umask(0o022)  # already done in aio.toplevel
 
+    import zipfile
     import aio.toplevel
-
-    # import ast
+    import ast
     from pathlib import Path
 
     class TopLevel_async_handler(aio.toplevel.AsyncInteractiveConsole):
         # be re entrant
         import_lock = []
 
-        mute_state = False
-
-        HTML_MARK = '"' * 3 + " # BEGIN -->"
+        HTML_MARK = '""" # BEGIN -->'
 
         repos = []
 
@@ -1122,6 +1231,25 @@ if not aio.cross.simulator:
         # ???
         ignore += ["pillow", "fonttools"]
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+        from pathlib import Path
+
+        repodata = "repodata.json"
+
+        def raw_input(self, prompt=">>> "):
+            if len(self.buffer):
+                return self.buffer.pop(0)
+
+            # if program wants I/O do not empty buffers
+            if self.shell.is_interactive:
+                maybe = embed.readline()
+
+                if len(maybe):
+                    return maybe
+            return None
+            # raise EOFError
+
+========
         # for ursina
         # ignore +=  ["ursina","gltf","pyperclip","screeninfo"]
 
@@ -1137,6 +1265,7 @@ if not aio.cross.simulator:
 
         from pathlib import Path
 
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         def eval(self, source):
             for count, line in enumerate(source.split("\n")):
                 if not count:
@@ -1148,6 +1277,13 @@ if not aio.cross.simulator:
             if count:
                 self.line = None
                 self.buffer.insert(0, "#")
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+            # self.buffer.append("")
+            print(f"996: {count} lines queued for async eval")
+
+        @classmethod
+        def scan_imports(cls, code, filename, load_try=False):
+========
 
             DBG(f"1039: {count} lines queued for async eval")
 
@@ -1156,6 +1292,7 @@ if not aio.cross.simulator:
             import aio.pep0723
             import ast
 
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
             required = []
             try:
                 root = ast.parse(code, filename)
@@ -1203,6 +1340,13 @@ if not aio.cross.simulator:
                     if not mod in required:
                         required.append(mod)
 
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+            DBG(f"1020: import scan {filename=} {len(code)=} {required}")
+            return required
+
+        @classmethod
+        def list_imports(cls, code=None, file=None):
+========
             DBG(f"1153: scan_imports {hint=} {filename=} {len(code)=} {required}")
             return required
 
@@ -1225,6 +1369,7 @@ if not aio.cross.simulator:
 """
                 )
 
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
             if code is None:
                 if file:
                     with open(file) as fcode:
@@ -1232,32 +1377,92 @@ if not aio.cross.simulator:
                 else:
                     code = ""
 
+            HTML_MARK = '"" # BEGIN -->'
+
             file = file or "<stdin>"
 
-            for want in cls.scan_imports(code, file, hint=hint):
-                # DBG(f"1114: requesting module {want=} for {file=} ")
+            for want in cls.scan_imports(code, file):
+                # DBG(f"1171: requesting module {want=} for {file=} ")
                 repo = None
                 for repo in aio.pep0723.Config.pkg_repolist:
                     if want in cls.may_need:
-                        DBG(f"1118: skip module {want=} reason: already requested")
+                        DBG(f"1046: skip module {want=} reason: already requested")
                         break
 
                     if want in sys.modules:
-                        DBG(f"1122: skip module {want=} reason: sys.modules")
+                        DBG(f"1179: skip module {want=} reason: sys.modules")
                         break
 
                     if want in repo:
                         cls.may_need.append(want)
-                        # DBG(f"1127: module {want=} requested")
+                        # DBG(f"1184: module {want=} requested")
                         yield want
                         break
                 else:
                     if repo:
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+                        DBG(f"1063: {repo['-CDN-']=} does not provide {want=}")
+                    else:
+                        pdb(f"1081: no pkg repository available")
+
+        @classmethod
+        def imports(cls, *mods, lvl=0, wants=[]):
+            unseen = False
+            for mod in mods:
+                for dep in cls.repos[0]["packages"].get(mod, {}).get("depends", []):
+                    if mod in sys.modules:
+                        continue
+
+                    if (not dep in wants) and (not dep in cls.ignore):
+                        unseen = True
+                        wants.insert(0, dep)
+
+            if lvl < 3 and unseen:
+                cls.imports(*wants, lvl=lvl + 1, wants=wants)
+
+            if not lvl:
+                for dep in mods:
+                    if mod in sys.modules:
+                        continue
+
+                    if (not dep in wants) and (not dep in cls.ignore):
+                        wants.append(dep)
+            # always get numpy first
+            if "numpy" in wants:
+                wants.remove("numpy")
+                wants.insert(0, "numpy")
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+
+            if "igraph" in wants:
+                if "texttable" in wants:
+                    wants.remove("texttable")
+                wants.insert(0, "texttable")
+
+            if "pygame_gui" in wants:
+                wants.insert(0, "i18n")
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+            # FIXME !
+
+            return wants
+========
                         DBG(f"1187: {repo['-CDN-']=} does not provide {want=}")
                     else:
                         print("1189: no pkg repository available")
                     if not want in aio.pep0723.hint_failed:
                         aio.pep0723.hint_failed.append(want)
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
         # TODO: re order repo on failures
         # TODO: try to download from pypi with
@@ -1269,6 +1474,172 @@ if not aio.cross.simulator:
         # https://github.com/thebjorn/pydeps
 
         @classmethod
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+        async def async_get_pkg(cls, want, ex, resume):
+            pkg_file = ""
+            for repo in PyConfig.pkg_repolist:
+                DBG(f"1202: {want=} found : {want in repo}")
+                if want in repo:
+                    pkg_url = f"{repo['-CDN-']}{repo[want]}"
+
+                    pkg_file = f"/tmp/{repo[want].rsplit('/',1)[-1]}"
+
+                    if pkg_file in aio.toplevel.HISTORY:
+                        break
+
+                    cfg = {"io": "url", "type": "fs", "path": pkg_file}
+                    print("pkg :", pkg_url)
+
+                    track = platform.window.MM.prepare(pkg_url, json.dumps(cfg))
+
+                    try:
+                        await cls.pv(track)
+                        zipfile.ZipFile(pkg_file).close()
+                        break
+                    except (IOError, zipfile.BadZipFile):
+                        pdb(f"960: network error on {repo['-CDN-']}, cannot install {pkg_file}")
+            else:
+                print(f"PKG NOT FOUND : {want=}, {resume=}, {ex=}")
+                return None
+            return await aio.toplevel.get_repo_pkg(pkg_file, want, resume, ex)
+
+        @classmethod
+        def get_pkg(cls, want, ex=None, resume=None):
+            return cls.async_get_pkg(want, ex, resume)
+
+        @classmethod
+        async def async_imports_init(cls):
+            for cdn in PyConfig.pkg_indexes:
+                async with platform.fopen(Path(cdn) / cls.repodata) as source:
+                    cls.repos.append(json.loads(source.read()))
+
+            # print(json.dumps(cls.repos[0]["packages"], sort_keys=True, indent=4))
+
+            print("referenced packages :", len(cls.repos[0]["packages"]))
+
+            if not len(PyConfig.pkg_repolist):
+                await cls.async_repos()
+
+            # print("1117: remapping ?", PyConfig.dev_mode)
+            if PyConfig.pygbag > 0:
+                for idx, repo in enumerate(PyConfig.pkg_repolist):
+                    DBG("1264:", repo["-CDN-"], "REMAPPED TO", PyConfig.pkg_indexes[-1])
+                    repo["-CDN-"] = PyConfig.pkg_indexes[-1]
+
+        @classmethod
+        async def async_imports(cls, callback, *wanted, **kw):
+            def default_cb(pkg, error=None):
+                if error:
+                    pdb(msg)
+                else:
+                    DBG(f"\tinstalling {pkg}")
+
+            callback = callback or default_cb
+
+            # init dep solver.
+            if not len(cls.repos):
+                await cls.async_imports_init()
+                del cls.async_imports_init
+
+            all = cls.imports(*wanted)
+
+            # pygame must be early for plotting
+            if ("matplotlib" in all) and ("pygame" not in sys.modules):
+                await cls.async_get_pkg("pygame.base", None, None)
+                __import__("pygame")
+
+            # FIXME: automatically build a deps table for those with buildmap for archive/repo/pkg.
+            if "igraph" in all:
+                if not "texttable" in sys.modules:
+                    callback("texttable")
+                    try:
+                        await cls.async_get_pkg("texttable", None, None)
+                        __import__("texttable")
+                    except (IOError, zipfile.BadZipFile):
+                        pdb("1310: cannot load texttable")
+                if "texttable" in all:
+                    all.remove("texttable")
+
+            # FIXME: numpy must be loaded first for some modules.
+            # FIXME: THIS IS RE-ENTRANT IN SOME CASES
+            if "numpy" in all:
+                if not "numpy" in sys.modules:
+                    callback("numpy")
+                    try:
+                        await cls.async_get_pkg("numpy", None, None)
+                        __import__("numpy")
+                    except (IOError, zipfile.BadZipFile):
+                        pdb("1305: cannot load numpy")
+                all.remove("numpy")
+
+            for req in all:
+                if req == "python-dateutil":
+                    req = "dateutil"
+
+                if req == "pillow":
+                    req = "PIL"
+
+                if req in cls.ignore or req in sys.modules:
+                    print("1291: {req=} in {cls.ignore=} or sys.modules")
+                    continue
+
+                callback(req)
+
+                try:
+                    await cls.async_get_pkg(req, None, None)
+                except (IOError, zipfile.BadZipFile):
+                    msg = f"928: cannot download {req} pkg"
+                    callback(req, error=msg)
+                    continue
+
+        @classmethod
+        async def pv(cls, track, prefix="", suffix="", decimals=1, length=70, fill="X", printEnd="\r"):
+            # Progress Bar Printing Function
+            def print_pg_bar(total, iteration):
+                if iteration > total:
+                    iteration = total
+                percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+                filledLength = int(length * iteration // total)
+                bar = fill * filledLength + "-" * (length - filledLength)
+                print(f"\r{prefix} |{bar}| {percent}% {suffix}", end=printEnd)
+
+            # Update Progress Bar
+            while True:
+                if track.pos < 0:
+                    raise IOError(404)
+                print_pg_bar(track.len or 100, track.pos or 0)
+                if track.avail:
+                    break
+                await asyncio.sleep(0.02)
+
+            # Print New Line on Complete
+            print()
+
+        @classmethod
+        async def async_repos(cls):
+            abitag = f"cp{sys.version_info.major}{sys.version_info.minor}"
+            for repo in PyConfig.pkg_indexes:
+                async with fopen(f"{repo}index.json", "r") as index:
+                    try:
+                        data = index.read()
+                        if isinstance(data, bytes):
+                            data = data.decode()
+                        data = data.replace("<abi>", abitag)
+                        repo = json.loads(data)
+                    except:
+                        pdb(f"1394: {repo=}: malformed json index {data}")
+                        continue
+                    if repo not in PyConfig.pkg_repolist:
+                        PyConfig.pkg_repolist.append(repo)
+
+            if PyConfig.dev_mode > 0:
+                for idx, repo in enumerate(PyConfig.pkg_repolist):
+                    try:
+                        print("1353:", repo["-CDN-"], idx, "REMAPPED TO", PyConfig.pkg_indexes[idx])
+                        repo["-CDN-"] = PyConfig.pkg_indexes[idx]
+                    except Exception as e:
+                        sys.print_exception(e)
+========
         def import_one(cls, mod, lvl=0):
             wants = []
 
@@ -1348,6 +1719,7 @@ if not aio.cross.simulator:
                     wants.append(mod)
 
             return wants
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
     # end TopLevel_async_handler
 
@@ -1428,8 +1800,262 @@ except:
     shell.screen_height = 600
 
 # ======================================================
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+def patch():
+    global COLS, LINES, CONSOLE
+    import platform
+
+    # DeprecationWarning: Using or importing the ABCs from 'collections'
+    # instead of from 'collections.abc' is deprecated since Python 3.3
+    # and in 3.10 it will stop working
+    import collections
+    from collections.abc import MutableMapping
+
+    collections.MutableMapping = MutableMapping
+
+    # could use that ?
+    # import _sqlite3
+    # sys.modules['sqlite3'] = _sqlite3
+
+    #
+    import os
+
+    COLS = platform.window.get_terminal_cols()
+    CONSOLE = platform.window.get_terminal_console()
+    LINES = platform.window.get_terminal_lines() - CONSOLE
+
+    os.environ["COLS"] = str(COLS)
+    os.environ["LINES"] = str(LINES)
+
+
+    def patch_os_get_terminal_size(fd=0):
+        cols = os.environ.get("COLS", 80)
+        lines = os.environ.get("LINES", 25)
+        try:
+            res= (int(cols), int(lines),)
+        except:
+            res (80, 25,)
+        return os.terminal_size(res)
+
+    os.get_terminal_size = patch_os_get_terminal_size
+
+    # fake termios module for some wheel imports
+    termios = type(sys)("termios")
+    termios.block2 = [
+        b"\x03",
+        b"\x1c",
+        b"\x7f",
+        b"\x15",
+        b"\x04",
+        b"\x00",
+        b"\x01",
+        b"\x00",
+        b"\x11",
+        b"\x13",
+        b"\x1a",
+        b"\x00",
+        b"\x12",
+        b"\x0f",
+        b"\x17",
+        b"\x16",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+        b"\x00",
+    ]
+
+    def patch_termios_getattr(*argv):
+        return [17664, 5, 191, 35387, 15, 15, termios.block2]
+
+    def patch_termios_set_raw_mode():
+        # assume first set is raw mode
+        embed.warn(f"Term phy COLS : {int(platform.window.get_terminal_cols())}")
+        embed.warn(f"Term phy LINES : {int(platform.window.get_terminal_lines())}")
+        embed.warn(f"Term logical : {patch_os_get_terminal_size()}")
+        # set console scrolling zone
+        embed.warn(f"Scroll zone start at {LINES=}")
+        CSI(f"{LINES+1};{LINES+CONSOLE}r", f"{LINES+2};1H>>> ")
+        platform.window.set_raw_mode(1)
+
+    def patch_termios_setattr(*argv):
+        if not termios.state:
+            patch_termios_set_raw_mode()
+        else:
+            embed.warn("RESETTING TERMINAL")
+
+        termios.state += 1
+        pass
+
+    termios.set_raw_mode = patch_termios_set_raw_mode
+    termios.state = 0
+    termios.tcgetattr = patch_termios_getattr
+    termios.tcsetattr = patch_termios_setattr
+    termios.TCSANOW = 0x5402
+    termios.TCSAFLUSH = 0x5410
+    termios.ECHO = 8
+    termios.ICANON = 2
+    termios.IEXTEN = 32768
+    termios.ISIG = 1
+    termios.IXON = 1024
+    termios.IXOFF = 4096
+    termios.ICRNL = 256
+    termios.INLCR = 64
+    termios.IGNCR = 128
+    termios.VMIN = 6
+
+    sys.modules["termios"] = termios
+
+    # pyodide emulation
+    # TODO: implement loadPackage()/pyimport()
+    def runPython(code):
+        from textwrap import dedent
+
+        print("1285: runPython N/I")
+
+    platform.runPython = runPython
+
+    # fake Decimal module for some wheel imports
+    sys.modules["decimal"] = type(sys)("decimal")
+
+    class Decimal:
+        pass
+
+    sys.modules["decimal"].Decimal = Decimal
+
+    # patch builtins input()
+    async def async_input(prompt=""):
+        shell.is_interactive = False
+        if prompt:
+            print(prompt, end="")
+        maybe = ""
+        while not len(maybe):
+            maybe = embed.readline()
+            await asyncio.sleep(0)
+
+        shell.is_interactive = True
+        return maybe.rstrip("\n")
+
+    import builtins
+
+    builtins.input = async_input
+
+    #
+    def patch_matplotlib_pyplot():
+        import matplotlib
+        import matplotlib.pyplot
+
+        def patch_matplotlib_pyplot_show(*args, **kwargs):
+            import pygame
+            import matplotlib.pyplot
+            import matplotlib.backends.backend_agg
+
+            figure = matplotlib.pyplot.gcf()
+            canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(figure)
+            canvas.draw()
+            renderer = canvas.get_renderer()
+            raw_data = renderer.tostring_rgb()
+            size = canvas.get_width_height()
+
+            screen = shell.pg_init()
+            surf = pygame.image.fromstring(raw_data, size, "RGB")
+            screen.blit(surf, (0, 0))
+            pygame.display.update()
+
+        matplotlib.pyplot.show = patch_matplotlib_pyplot_show
+
+        matplotlib.pyplot.__pause__ = matplotlib.pyplot.pause
+
+        def patch_matplotlib_pyplot_pause(interval):
+            matplotlib.pyplot.__pause__(0.0001)
+            patch_matplotlib_pyplot_show()
+            return asyncio.sleep(interval)
+
+        matplotlib.pyplot.pause = patch_matplotlib_pyplot_pause
+
+    #
+    def patch_panda3d_showbase():
+        import panda3d
+        import panda3d.core
+        from direct.showbase.ShowBase import ShowBase
+
+        print("panda3d: apply model path patch")
+        panda3d.core.get_model_path().append_directory(os.getcwd())
+
+        def run(*argv, **env):
+            print("ShowBase.run patched")
+
+        print("panda3d: apply ShowBase.run patch")
+        ShowBase.run = run
+
+    def patch_cwcwidth():
+        import cwcwidth
+
+        sys.modules["wcwidth"] = cwcwidth
+
+    def patch_pygame():
+        import pygame
+        import platform_wasm.pygame
+        import platform_wasm.pygame.vidcap
+
+        sys.modules["pygame.vidcap"] = platform_wasm.pygame.vidcap
+
+    platform.patches = {
+        "matplotlib": patch_matplotlib_pyplot,
+        "panda3d": patch_panda3d_showbase,
+        "wcwidth": patch_cwcwidth,
+        "pygame.base": patch_pygame,
+    }
+
+
+patch()
+del patch
+
+
+# ======================================================
+# emulate pyodide display() cmd
+# TODO: fixme target
+async def display(obj, target=None, **kw):
+    filename = shell.mktemp(".png")
+    target = kw.pop("target", None)
+    x = kw.pop("x", 0)
+    y = kw.pop("y", 0)
+    dpi = kw.setdefault("dpi", 72)
+    if repr(type(obj)).find("matplotlib.figure.Figure") > 0:
+        # print(f"matplotlib figure {platform.is_browser=}")
+        if platform.is_browser:
+            # Agg is not avail, save to svg only option.
+            obj.canvas.draw()
+            tmp = f"{filename}.svg"
+            obj.savefig(tmp, format="svg", **kw)
+            await platform.jsiter(platform.window.svg.render(tmp, filename))
+        else:
+            # desktop matplotlib can save to any format
+            obj.canvas.draw()
+            obj.savefig(filename, format="png", **kw)
+
+    if target in [None, "pygame"]:
+        import pygame
+
+        screen = shell.pg_init()
+        screen.fill((0, 0, 0))
+        screen.blit(pygame.image.load(filename), (x, y))
+        pygame.display.update()
+========
 # patching
 # import platform_wasm.todo
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
 
 # ======================================================
@@ -1479,14 +2105,29 @@ except:
 
 
 async def import_site(__file__, run=True):
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+    global ENABLE_USER_SITE, LOCK
+    if LOCK:
+        print("1665: import_site IS NOT RE ENTRANT")
+========
     import builtins
 
     if builtins.LOCK:
         platform.window.console.error("1473: import_site IS NOT RE ENTRANT")
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         return
     builtins.LOCK = True
 
+    LOCK = True
+    from pathlib import Path
+
+    embed = False
+    hint = "main.py"
+
     try:
+<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
+        # always start async handler or we could not do imports.
+========
         from pathlib import Path
 
         embed = False
@@ -1504,42 +2145,34 @@ async def import_site(__file__, run=True):
         TopLevel_async_handler.mute_state = ".py" in "".join(sys.argv)
 
         # always start async handler or we could not do imports on import errors.
+>>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         await TopLevel_async_handler.start_toplevel(platform.shell, console=True)
 
-        # RUNNING GIVEN DISK FILE with no prompt
-        # this is usually the import site given by javascript loader or a template loader (pygbag apk mode)
-        # or the user script (script mode).
-
         if Path(__file__).is_file():
-            DBG(f"1755: shell.source({__file__=})")
+            DBG(f"1601: running {__file__=}")
+            TopLevel_async_handler.muted = True
             await shell.source(__file__)
-
-            # allow to set user site customization network, or embedded js to be processed
+            # allow to set ENABLE_USER_SITE
             await asyncio.sleep(0)
-
-            if PyConfig.user_site_directory:
-                DBG(f"1768: {__file__=} done, giving hand to user_site")
+            if ENABLE_USER_SITE:
+                DBG(f"1607: {__file__=} done, giving hand to user_site")
                 return __file__
             else:
-                DBG(f"1764: {__file__=} done : now trying user sources")
+                DBG(f"1690: {__file__=} done : now trying remote sources")
         else:
-            DBG(f"1767: {__file__=} NOT FOUND : now trying user sources")
-
-        # NOW CHECK OTHER SOURCES
+            DBG(f"1692: {__file__=} NOT FOUND : now trying remote sources")
 
         # where to retrieve
         import tempfile
 
         tmpdir = Path(tempfile.gettempdir())
 
-        # maybe a script filename or content passed as frozen config.
-
         source = getattr(PyConfig, "frozen", "")
         if source:
             if Path(source).is_file():
                 source_path = getattr(PyConfig, "frozen_path", "")
                 handler = getattr(PyConfig, "frozen_handler", "")
-                DBG("1786: embed path", source_path, "will embed", source, "handled by", handler)
+                DBG("1514: embed path", source_path, "will embed", source, "handled by", handler)
                 local = tmpdir / "embed.py"
                 with open(source, "r") as src:
                     with open(local, "w") as file:
@@ -1555,7 +2188,7 @@ async def import_site(__file__, run=True):
         global __main__
         if 'aio.fetch' in sys.modules:
             import aio.fetch
-            await aio.fetch.preload()
+            await aio.fetch.preload_fetch()
             await asyncio.sleep(0)
         if __main__:
             await __main__()
@@ -1563,29 +2196,27 @@ async def import_site(__file__, run=True):
     """
                             )
                         else:
-                            async with platform.fopen(handler) as handle:
+                            async with fopen(handler) as handle:
                                 file.write("\n")
                                 file.write(handle.read())
                 embed = True
             else:
-                print(f"1814: invalid embed {source=}")
+                print(f"1639: invalid embed {source=}")
                 return None
-
             # file has been retrieved stored in local
         else:
             local = None
             # no embed, try sys.argv[0] first, but main.py can only be a hint.
             # of what to run in an archive
 
+            is_py = sys.argv[0].endswith(".py")
             if sys.argv[0] == "main.py" or not is_py:
                 source = PyConfig.orig_argv[-1]
                 if is_py:
                     hint = sys.argv[0]
             else:
                 source = sys.argv[0]
-
-        DBG(f"1830: {local=} {source=} {is_py=} {hint=}")
-
+        DBG(f"1745 {local=} {source=} {is_py=} {hint=}")
         if local is None:
             ext = str(source).rsplit(".")[-1].lower()
 
@@ -1595,14 +2226,14 @@ async def import_site(__file__, run=True):
 
             # TODO: test tar.bz2 lzma tar.xz
             elif ext in ("zip", "gz", "tar", "apk", "jar"):
-                DBG(f"1841: found archive source {source=}")
+                DBG(f"1664: found archive source {source=}")
                 # download and unpack into tmpdir
                 fname = tmpdir / source.rsplit("/")[-1]
 
                 if ext in ("apk", "jar"):
                     fname = fname + ".zip"
 
-                async with platfom.fopen(source, "rb") as zipdata:
+                async with fopen(source, "rb") as zipdata:
                     with open(fname, "wb") as file:
                         file.write(zipdata.read())
                 import shutil
@@ -1616,12 +2247,10 @@ async def import_site(__file__, run=True):
                     if file.find(hint) > 0:
                         local = tmpdir / file
                         break
-                DBG("1862: import_site: found ", local)
+                DBG("1725: import_site: found ", local)
             else:
                 # maybe base64 or frozen code in html.
                 ...
-
-        DBG(f"1867: {local=} {source=} {is_py=} {hint=}")
 
         if local and local.is_file():
             pdir = str(local.parent)
@@ -1639,7 +2268,6 @@ async def import_site(__file__, run=True):
             # TODO: check orig_argv for isolation parameters
             if not pdir in sys.path:
                 sys.path.insert(0, pdir)
-
             if run:
                 await shell.runpy(local)
             return str(local)
