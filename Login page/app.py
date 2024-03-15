@@ -70,7 +70,7 @@ def register():
 
     conn.close()
 
-    return redirect('/game')
+    return redirect('/')
 
 # Route for login
 @app.route('/login', methods=['POST'])
