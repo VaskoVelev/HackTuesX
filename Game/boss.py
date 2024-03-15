@@ -2,7 +2,7 @@ import pygame
 import random
 
 class Boss(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, trashGroup):
+    def __init__(self, x, y, width, height, trashGroup, bulletGroup):
         super().__init__()
 
         # Loading the sprite sheet img
@@ -12,7 +12,8 @@ class Boss(pygame.sprite.Sprite):
         self.desiredWidth = width
         self.desiredHeight = height
         self.trashGroup = trashGroup
-
+        self.hit_count = 0
+        self.bulletGroup = bulletGroup
         self.frames = []
 
         for i in range(1, 4):
@@ -44,7 +45,12 @@ class Boss(pygame.sprite.Sprite):
         trashCollide = pygame.sprite.spritecollide(self, self.trashGroup, False)
         for trash in trashCollide:
             trash.kill()
-            
+        
+        bulletCollide = pygame.sprite.spritecollide(self, self.bulletGroup, True)
+        for bullet in bulletCollide:
+            self.hit_count += 1
+            if self.hit_count >= 10:
+                self.kill()
 
     def draw(self, surface):
         scaled_image = pygame.transform.scale(self.image, (self.desiredWidth, self.desiredHeight))
