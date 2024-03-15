@@ -1,10 +1,12 @@
 import pygame
 import random
+from bullets import Bullet
 
-class Shark(pygame.sprite.Sprite):
+class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, trashGroup):
         super().__init__()
 
+        # Loading the sprite sheet img
         self.frameIndex = 0
         self.animationSpeed = 15
         self.frameCount = 0 
@@ -15,8 +17,8 @@ class Shark(pygame.sprite.Sprite):
         self.frames = []
 
         for i in range(1, 4):
-            shark_image = pygame.image.load(f"Game/spriteSheets/shark/blackSharkSS_{i}.png").convert_alpha()
-            self.frames.append(shark_image)
+            boss_image = pygame.image.load(f"Game/spriteSheets/boss/boss{i}.png").convert_alpha()
+            self.frames.append(boss_image)
 
         self.image = self.frames[self.frameIndex]
         self.rect = self.image.get_rect()
@@ -48,4 +50,3 @@ class Shark(pygame.sprite.Sprite):
     def draw(self, surface):
         scaled_image = pygame.transform.scale(self.image, (self.desiredWidth, self.desiredHeight))
         surface.blit(scaled_image, self.rect)
-
