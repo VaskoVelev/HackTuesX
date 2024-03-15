@@ -2,7 +2,7 @@ import pygame
 from bullets import Bullet
 
 class Fish(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, trashGroup, bulletGroup, bulletHitGroup, life, score):
+    def __init__(self, x, y, width, height, trashGroup, bulletGroup, bulletHitGroup, life, score, boss_mode):
         super().__init__()
 
         self.frameIndex = 0
@@ -11,6 +11,7 @@ class Fish(pygame.sprite.Sprite):
         self.desiredWidth = width
         self.desiredHeight = height
         self.trashGroup = trashGroup
+        self.boss_mode = boss_mode
 
         self.bulletGroup = bulletGroup
         self.bulletHitGroup = bulletHitGroup
