@@ -15,7 +15,7 @@ class Shark(pygame.sprite.Sprite):
         self.frames = []
 
         for i in range(1, 4):
-            shark_image = pygame.image.load(f"Game/spriteSheets/shark/blackSharkSS_{i}.png").convert_alpha()
+            shark_image = pygame.image.load(f"spriteSheets/shark/blacksharkSS_{i}.png").convert_alpha()
             self.frames.append(shark_image)
 
         self.image = self.frames[self.frameIndex]

@@ -29,6 +29,10 @@ def home():
 def fact():
     return render_template('facts.html')
 
+@app.route('/loginfail.html')
+def testfail():
+    return render_template('loginfail.html')
+
 @app.route('/aboutus.html')
 def aboutus():
     return render_template('aboutus.html')
@@ -36,20 +40,32 @@ def aboutus():
 # Route for registration
 @app.route('/register', methods=['POST'])
 def register():
-    try:
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
 
-        conn = get_db_connection()
-        cur = conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Check if the username already exists in the database
+    cur.execute('SELECT * FROM users WHERE username = ?', (username,))
+    existing_user = cur.fetchone()
+
+    if existing_user:
+        conn.close()
+        return redirect('/loginfail')
+
+    # If the username is unique, proceed with registration
+    try:
         cur.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', (username, email, password))
         conn.commit()
-        conn.close()
-
         flash('Registration successful! Please log in.')
-    except sqlite3.IntegrityError:
-        flash('Username or email already exists. Please choose a different one.')
+    except:
+        conn.rollback()
+        flash('An error occurred during registration. Please try again.')
+
+    conn.close()
+
     return redirect('/')
 
 # Route for login
@@ -65,11 +81,9 @@ def login():
     conn.close()
 
     if user:
-        flash('Login successful!')
-    else:
-        flash('Invalid email or password.')
-
-    #return redirect('/')
+        return redirect('/')
+    
+    return redirect('/loginfail')
 
 if __name__ == '__main__':
     app.run(debug=True)

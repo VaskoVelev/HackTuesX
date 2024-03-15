@@ -5,9 +5,9 @@ class Button(pygame.sprite.Sprite):
         super().__init__()
 
         self.images = {
-            'normal': pygame.image.load('Game/spriteSheets/button/blueButton.png'),
-            'hover': pygame.image.load('Game/spriteSheets/button/blueButtonHover.png'),
-            'pressed': pygame.image.load('Game/spriteSheets/button/blueButtonPressed.png')
+            'normal': pygame.image.load('spriteSheets/button/blueButton.png'),
+            'hover': pygame.image.load('spriteSheets/button/blueButtonHover.png'),
+            'pressed': pygame.image.load('spriteSheets/button/blueButtonPressed.png')
         }
         self.state = 'normal'
         self.image = self.images[self.state]
@@ -16,7 +16,7 @@ class Button(pygame.sprite.Sprite):
         self.desiredHeight = height
         self.rect.center = (x, y)
         self.text = text
-        self.font = pygame.font.Font('Game/font/Pixeltype.ttf', 50)
+        self.font = pygame.font.Font('font/Pixeltype.ttf', 50)
         self.collisionRect = pygame.Rect(x - width // 2, y - height // 2, width, height)
         self.gameState = gameState
 
