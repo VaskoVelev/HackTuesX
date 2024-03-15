@@ -159,7 +159,7 @@ bulletHitGroup = pygame.sprite.Group()
 myFish = Fish(250, 200, 65, 65, trashGroup, bulletGroup, bulletHitGroup, life, score)
 
 myShark = Shark(1700, 300, 160, 80, trashGroup)
-myBoss = Boss(300, 300, 320, 160, trashGroup)
+myBoss = Boss(1300, 300, 320, 160, trashGroup)
 
 def dropShadowText(screen, text, size, x, y, color, dropColor, font= pygame.font.Font('Game/font/Pixeltype.ttf')):
     dropShadowOffset = 3 + (size // 15)
@@ -193,15 +193,15 @@ def drawWindow():
         WIN.blit(background, (bgX, 0))
         WIN.blit(background, (bgX + WIDTH, 0))
         myFish.draw(WIN)
-        myShark.draw(WIN)
         trashGroup.draw(WIN)
-        if myFish.score > 2000:
-            myBoss.update()
-            myBoss.draw(WIN)
+        myShark.draw(WIN)
         bulletGroup.draw(WIN)
         bulletHitGroup.draw(WIN)
         life = myFish.life
         score = myFish.score
+        if score > 500:
+            myBoss.update()
+            myBoss.draw(WIN)
         distance = int(pygame.time.get_ticks() / 1000)
         displayNavBar(life, score)
         if life <= 0:
