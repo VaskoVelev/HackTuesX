@@ -18,11 +18,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 clock = pygame.time.Clock()
 
-username_path = 'Game/username/username.txt'
-with open(username_path, "r") as file:
-    username = str(file.read())
-
-pygame.display.set_caption(f"{username}")
+pygame.display.set_caption("Aqua Clean-up")
 pixelFont = pygame.font.Font('font/Pixeltype.ttf', 48)
 
 MENU = "menu"
@@ -188,7 +184,7 @@ with open(file_path, "r") as file:
     high_score = int(file.read())
 
 def drawWindow():
-    global distance, gameState, boss_fight_started, death, high_score, username
+    global distance, gameState, boss_fight_started, death, high_score
     if gameState == MENU:
         updateBG()
         WIN.blit(menuBackground, (bgX, 0))
@@ -199,7 +195,6 @@ def drawWindow():
         dropShadowText(WIN, "Clean-up", 108, WIDTH//2 - 125, 200, (5, 195, 221), (22, 27, 99) )
         drawMenu()
 
-        
     elif gameState == RUNNING:
         updateBG()
         if myFish.boss_mode != "boss 1" and death == False:

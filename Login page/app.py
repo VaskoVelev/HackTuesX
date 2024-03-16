@@ -76,8 +76,11 @@ def login():
 
     if user:
         username = user['username']
-        with open('Game/username/username.txt', 'w') as file:
+        with open('username.txt', 'w') as file:
             file.write(str(username))
+
+        with open('username.txt', 'r') as file:
+            print(f"User playing: {str(file.read())}")
 
         return redirect('/game')
     

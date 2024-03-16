@@ -17,26 +17,18 @@ import json
 
 
 PYCONFIG_PKG_INDEXES_DEV = ["http://localhost:<port>/archives/repo/"]
-# normal index or PYGPY env is handled after env conversion around line 255
+PYCONFIG_PKG_INDEXES = ["https://pygame-web.github.io/archives/repo/"]
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
 ENABLE_USER_SITE = False
 
 # the sim does not preload assets and cannot access currentline
-========
-# the sim does not ospreload assets and cannot access currentline
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 # unless using https://github.com/pmp-p/aioprompt/blob/master/aioprompt/__init__.py
-# or a thread
 
 if not defined("undefined"):
 
     class sentinel:
         def __bool__(self):
             return False
-
-        def __len__(self):
-            return 0
 
         def __repr__(self):
             return "∅"
@@ -202,20 +194,13 @@ except:
 
 try:
     PyConfig
-except NameError:
-    PyConfig = None
+    PyConfig["pkg_repolist"] = []
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
     aio.cross.simulator = False
     sys.argv = PyConfig.pop("argv", [])
 
 except Exception as e:
     sys.print_exception(e)
-========
-# in simulator there's no PyConfig
-# would need to get one from live cpython
-if PyConfig is None:
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
     # TODO: build a pyconfig extracted from C here
     PyConfig = {}
     PyConfig["dev_mode"] = 1
@@ -224,46 +209,6 @@ if PyConfig is None:
     PyConfig["interactive"] = 1
     print(" - running in wasm simulator - ")
     aio.cross.simulator = True
-else:
-
-    # for the various emulations/tools provided
-    sys.path.append('/data/data/org.python/assets')
-
-    PyConfig["pkg_repolist"] = []
-
-    aio.cross.simulator = False
-    sys.argv.clear()
-    sys.argv.extend(PyConfig.pop("argv", []))
-
-    sys.executable = PyConfig["executable"]
-    sys.orig_argv.clear()
-
-    sys.orig_argv.append(sys.executable)
-
-    # env is passed in orig_argv ?ENV1=V1&ENV2=V2#
-    for arg in PyConfig["orig_argv"]:
-        if "=" not in arg:
-            sys.orig_argv.append(arg)
-        else:
-            k, v = arg.split("=", 1)
-            os.environ[k] = v
-
-    home = f"/home/{os.environ.get('USER','web_user')}"
-    if home != "/home/web_user":
-        # in case user name is not fs compatible
-        try:
-            os.rename("/home/web_user", home)
-        except:
-            home = "/home/web_user"
-
-    os.environ["HOME"] = home
-    os.environ["APPDATA"] = home
-    del home
-
-# now in pep0723
-#PYCONFIG_PKG_INDEXES = [
-#    os.environ.get('PYGPY', "https://pygame-web.github.io/archives/repo/"),
-#]
 
 PyConfig["imports_ready"] = False
 PyConfig["pygbag"] = 0
@@ -332,15 +277,9 @@ class shell:
     def pg_init(cls):
         import pygame
 
-        screen = None
         if pygame.display.get_init():
-            screen = pygame.display.get_surface()
-        else:
-            pygame.init()
-            pygame.display.get_init()
-
-        if not screen:
-            screen = pygame.display.set_mode([cls.screen_width, cls.screen_height])
+            return pygame.display.get_surface()
+        screen = pygame.display.set_mode([cls.screen_width, cls.screen_height])
         return screen
 
     @classmethod
@@ -456,12 +395,6 @@ class shell:
         return True
 
     @classmethod
-    def env(cls, *argv):
-        for k in os.environ:
-            yield f"{k}={os.environ[k]}"
-        return True
-
-    @classmethod
     def pwd(cls, *argv):
         print(os.getcwd())
 
@@ -471,10 +404,10 @@ class shell:
         for arg in argv:
             if arg == "install":
                 continue
-            import aio.pep0723
+            import aio.toplevel
 
             # yield f"attempting to install {arg}"
-            await aio.pep0723.pip_install(arg)
+            await PyConfig.importer.async_imports(None, arg)
 
     @classmethod
     def cd(cls, *argv):
@@ -541,11 +474,11 @@ class shell:
 
     @classmethod
     def install(cls, *argv, **env):
-        import aio.pep0723
+        import aio.toplevel
 
         for pkg_file in argv:
             try:
-                aio.pep0723.install(pkg_file)
+                aio.toplevel.install(pkg_file)
                 yield f"{pkg_file} installed"
             except (IOError, zipfile.BadZipFile):
                 pdb("397: invalid package", pkg_file)
@@ -647,13 +580,24 @@ ________________________
         if not cls.pgzrunning:
             # pgzrun does its own cleanup call
             aio.defer(aio.recycle.cleanup, (), {}, delay=500)
-            aio.defer(platform.prompt, (), {}, delay=800)
+            aio.defer(embed.prompt, (), {}, delay=800)
 
     @classmethod
     def uptime(cls, *argv, **env):
         import asyncio, platform
 
-        if not aio.perf_index:
+        if platform.is_browser:
+
+            def load_display(ft):
+                avg = sum(ft) / len(ft)
+                try:
+                    platform.window.load_avg.innerText = "{:.4f}".format(avg)
+                    platform.window.load_min.innerText = "{:.4f}".format(min(ft))
+                    platform.window.load_max.innerText = "{:.4f}".format(max(ft))
+                    return True
+                except:
+                    pdb("366:uptime: window.load_* widgets not found")
+                    return False
 
             async def perf_index():
                 ft = [0.00001] * 60 * 10
@@ -661,14 +605,13 @@ ________________________
                     ft.pop(0)
                     ft.append(aio.spent / 0.016666666666666666)
                     if not (aio.ticks % 60):
-                        avg = sum(ft) / len(ft)
-                        aio.load_avg = "{:.4f}".format(avg)
-                        aio.load_min = "{:.4f}".format(min(ft))
-                        aio.load_max = "{:.4f}".format(max(ft))
+                        if not load_display(ft):
+                            break
                     await asyncio.sleep(0)
 
-            aio.perf_index = perf_index()
-            aio.create_task(aio.perf_index)
+            aio.create_task(perf_index())
+        else:
+            print(f"last frame : {aio.spent / 0.016666666666666666:.4f}")
 
     # cannot deal with HTML trail properly
     #        @classmethod
@@ -682,7 +625,6 @@ ________________________
     #            return True
 
     @classmethod
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
     async def preload_code(cls, code, callback=None):
         # get a relevant list of modules likely to be imported
         # and prefetch them if found in repo trees
@@ -692,79 +634,11 @@ ________________________
         #                await TopLevel_async_handler.async_imports(callback, want)
 
         await TopLevel_async_handler.async_imports(callback, *TopLevel_async_handler.list_imports(code, file=None))
-========
-    async def preload_code(cls, code, callback=None, loaderhome=".", hint=""):
-        # get a relevant list of modules likely to be imported
-        PyConfig.dev_mode = 1
-        DBG(f"655: preload_code({len(code)=} {hint=} {loaderhome=})")
-
-        if loaderhome != ".":
-            os.chdir(loaderhome)
-        if not loaderhome in sys.path:
-            sys.path.append(loaderhome)
-
-        import aio
-        import aio.pep0723
-        from aio.pep0723 import Config
-
-        if not aio.cross.simulator:
-            # env path is set by pep0723
-            sconf = __import__("sysconfig").get_paths()
-            env = Path(sconf["purelib"])
-
-            if not len(Config.repos):
-                await aio.pep0723.async_repos()
-
-    # TODO switch to METADATA:Requires-Dist
-    #   see https://github.com/pygame-web/pygbag/issues/156
-
-                for cdn in Config.PKG_INDEXES:
-                    async with platform.fopen(Path(cdn) / Config.REPO_DATA) as source:
-                        Config.repos.append(json.loads(source.read()))
-
-                DBG("650: FIXME (this is pyodide maintened stuff, use (auto)PEP723 asap)")
-                print("651: referenced packages :", len(Config.repos[0]["packages"]))
-
-            DBG(f"654: aio.pep0723.check_list {aio.pep0723.env=}")
-            deps = await aio.pep0723.check_list(code)
-
-            DBG(f"656: aio.pep0723.pip_install {deps=}")
-
-            # auto import plumbing to avoid rely too much on import error
-            maybe_wanted = list(TopLevel_async_handler.list_imports(code, file=None, hint=hint))
-            DBG(f"635: {maybe_wanted=} known failed {aio.pep0723.hint_failed=}")
-
-            # FIXME use an hybrid wheel
-            if 'pyodide' in aio.pep0723.hint_failed:
-
-                for no_need in ('_zengl','pyodide','beautifulsoup4'):
-                    if no_need in maybe_wanted:
-                        maybe_wanted.remove(no_need)
-                # force
-                maybe_wanted.append('beautifulsoup4')
-
-            for dep in maybe_wanted:
-                if not dep in deps:
-                    deps.append(dep)
-
-            for dep in deps:
-                await aio.pep0723.pip_install(dep)
-
-            aio.pep0723.do_patches()
-
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         PyConfig.imports_ready = True
         return True
 
     @classmethod
     def interactive(cls, prompt=False):
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
-========
-        if prompt:
-            aio.toplevel.handler.mute_state = False
-            aio.toplevel.handler.muted = False
-
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         if cls.is_interactive:
             return
         # if you don't reach that step
@@ -772,15 +646,13 @@ ________________________
         DBG("642: starting EventTarget in a few seconds")
 
         print()
-        aio.toplevel.handler.instance.banner()
+        TopLevel_async_handler.instance.banner()
 
         aio.create_task(platform.EventTarget.process())
         cls.is_interactive = True
 
         if not shell.pgzrunning:
-            # __main__@stdin has no __file__
-            if hasattr(__import__("__main__"), "__file__"):
-                del __import__("__main__").__file__
+            del __import__("__main__").__file__
             if prompt:
                 cls.runner.prompt()
         else:
@@ -797,11 +669,11 @@ ________________________
             has_pygame = False
             with open(file_name, "r") as code_file:
                 code = code_file.read()
-                code = code.rsplit(aio.toplevel.handler.HTML_MARK, 1)[0]
+                code = code.rsplit(TopLevel_async_handler.HTML_MARK, 1)[0]
 
                 # do not check site/final/packed code
                 # preload code must be fully async and no pgzero based
-                if aio.toplevel.handler.muted:
+                if TopLevel_async_handler.muted:
                     return True
 
                 if code[0:320].find("#!pgzrun") >= 0:
@@ -818,14 +690,6 @@ ________________________
                     return False
             return True
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
-========
-        code = ""
-        shell.pgzrunning = None
-
-        DBG(f"690: : runpy({main=})")
-        # REMOVE THAT IT SHOULD BE DONE IN SIM ANALYSER AND HANDLED PROPERLY
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         if not check_code(main):
             for base in ("pygame", "pg"):
                 for func in ("flip", "update"):
@@ -842,20 +706,13 @@ ________________________
 
         await cls.preload_code(code, **kw)
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
         if TopLevel_async_handler.instance:
             DBG("646: starting shell")
             TopLevel_async_handler.instance.start_console(shell)
-========
-        # get an async executor to catch import errors
-        if aio.toplevel.handler.instance:
-            DBG("715: starting shell")
-            aio.toplevel.handler.instance.start_console(shell)
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         else:
             pdb("651: no async handler loader, starting a default async console")
             shell.debug()
-            await aio.toplevel.handler.start_toplevel(platform.shell, console=True)
+            await TopLevel_async_handler.start_toplevel(platform.shell, console=True)
 
         if shell.pgzrunning:
             print("600 : pygame zero detected")
@@ -866,23 +723,15 @@ ________________________
 
             pgzrun.go = lambda: None
             cb = kw.pop("callback", None)
-            await aio.toplevel.handler.async_imports(cb, "pygame.base", "pgzero", "pyfxr", **kw)
+            await TopLevel_async_handler.async_imports(cb, "pygame.base", "pgzero", "pyfxr", **kw)
             import pgzero
             import pgzero.runner
 
             pgzero.runner.prepare_mod(__main__)
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
         TopLevel_async_handler.instance.eval(code)
 
         if not TopLevel_async_handler.muted:
-========
-        # finally eval async
-        aio.toplevel.handler.instance.eval(code)
-
-        # go back to prompt
-        if not aio.toplevel.handler.muted:
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
             print("going interactive")
             DBG("643: TODO detect input/print to select repl debug")
             cls.interactive()
@@ -891,20 +740,11 @@ ________________________
 
     @classmethod
     async def source(cls, main, *args, **kw):
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
         TopLevel_async_handler.muted = True
         try:
             return await cls.runpy(main, *args, **kw)
         finally:
             TopLevel_async_handler.muted = False
-========
-        # this is not interactive turn off prompting
-        aio.toplevel.handler.muted = True
-        try:
-            return await cls.runpy(main, *args, **kw)
-        finally:
-            aio.toplevel.handler.muted = aio.toplevel.handler.mute_state
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
     @classmethod
     def parse_sync(shell, line, **env):
@@ -974,13 +814,7 @@ ________________________
             await sub
 
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
 PyConfig["shell"] = shell
-========
-import os
-
-os.shell = shell
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 builtins.shell = shell
 # end shell
 
@@ -1000,6 +834,7 @@ random.seed(1)
 import __EMSCRIPTEN__ as platform
 
 platform.shell = shell
+
 
 if not aio.cross.simulator:
 
@@ -1107,10 +942,9 @@ if not aio.cross.simulator:
                 PyConfig.pkg_indexes.append(redirect)
 
             print("807: DEV MODE ON", PyConfig.pkg_indexes)
-# now in pep0723
-#        else:
-#            # address cdn
-#            PyConfig.pkg_indexes = PYCONFIG_PKG_INDEXES
+        else:
+            # address cdn
+            PyConfig.pkg_indexes = PYCONFIG_PKG_INDEXES
 
         from platform import window, document, ffi
 
@@ -1224,14 +1058,15 @@ if not aio.cross.simulator:
         HTML_MARK = '""" # BEGIN -->'
 
         repos = []
-
+        mapping = {
+            "pygame": "pygame.base",
+        }
         may_need = []
         ignore = ["ctypes", "distutils", "installer", "sysconfig"]
         ignore += ["python-dateutil", "matplotlib-pyodide"]
         # ???
         ignore += ["pillow", "fonttools"]
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
         from pathlib import Path
 
         repodata = "repodata.json"
@@ -1249,23 +1084,6 @@ if not aio.cross.simulator:
             return None
             # raise EOFError
 
-========
-        # for ursina
-        # ignore +=  ["ursina","gltf","pyperclip","screeninfo"]
-
-        manual_deps = {
-            "matplotlib": ["numpy", "six", "cycler", "PIL", "pygame-ce"],
-            "bokeh": ["numpy", "yaml", "typing_extensions", "jinja2", "markupsafe"],
-            "igraph": ["texttable"],
-            "pygame_gui": ["pygame.base", "i18n"],
-            "ursina": ["numpy", "screeninfo", "gltf", "PIL", "pyperclip", "panda3d"],
-        }
-
-        missing_fence = []
-
-        from pathlib import Path
-
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         def eval(self, source):
             for count, line in enumerate(source.split("\n")):
                 if not count:
@@ -1277,28 +1095,17 @@ if not aio.cross.simulator:
             if count:
                 self.line = None
                 self.buffer.insert(0, "#")
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
             # self.buffer.append("")
             print(f"996: {count} lines queued for async eval")
 
         @classmethod
         def scan_imports(cls, code, filename, load_try=False):
-========
-
-            DBG(f"1039: {count} lines queued for async eval")
-
-        @classmethod
-        def scan_imports(cls, code, filename, load_try=False, hint=""):
-            import aio.pep0723
-            import ast
-
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
             required = []
             try:
                 root = ast.parse(code, filename)
             except SyntaxError as e:
                 print("_" * 40)
-                print("1111:", filename, hint)
+                print("1004:", filename)
                 print("_" * 40)
                 for count, line in enumerate(code.split("\n")):
                     print(str(count).zfill(3), line)
@@ -1319,7 +1126,7 @@ if not aio.cross.simulator:
                     else:
                         mod = n.name.split(".")[0]
 
-                    mod = aio.pep0723.Config.mapping.get(mod, mod)
+                    mod = cls.mapping.get(mod, mod)
 
                     if mod in cls.ignore:
                         continue
@@ -1340,36 +1147,11 @@ if not aio.cross.simulator:
                     if not mod in required:
                         required.append(mod)
 
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
             DBG(f"1020: import scan {filename=} {len(code)=} {required}")
             return required
 
         @classmethod
         def list_imports(cls, code=None, file=None):
-========
-            DBG(f"1153: scan_imports {hint=} {filename=} {len(code)=} {required}")
-            return required
-
-        @classmethod
-        def list_imports(cls, code=None, file=None, hint=""):
-            import aio.pep0723
-
-            if not len(aio.pep0723.Config.pkg_repolist):
-                print(
-                    """
-1208: pep0723 REPOSITORY MISSING
-"""
-                )
-            else:
-                DBG(
-                    f"""
-1214: list_imports {len(code)=} {file=} {hint=}")
-{aio.pep0723.Config.pkg_repolist[0]['-CDN-']=}
-
-"""
-                )
-
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
             if code is None:
                 if file:
                     with open(file) as fcode:
@@ -1384,7 +1166,7 @@ if not aio.cross.simulator:
             for want in cls.scan_imports(code, file):
                 # DBG(f"1171: requesting module {want=} for {file=} ")
                 repo = None
-                for repo in aio.pep0723.Config.pkg_repolist:
+                for repo in PyConfig.pkg_repolist:
                     if want in cls.may_need:
                         DBG(f"1046: skip module {want=} reason: already requested")
                         break
@@ -1400,7 +1182,6 @@ if not aio.cross.simulator:
                         break
                 else:
                     if repo:
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
                         DBG(f"1063: {repo['-CDN-']=} does not provide {want=}")
                     else:
                         pdb(f"1081: no pkg repository available")
@@ -1456,13 +1237,6 @@ if not aio.cross.simulator:
             # FIXME !
 
             return wants
-========
-                        DBG(f"1187: {repo['-CDN-']=} does not provide {want=}")
-                    else:
-                        print("1189: no pkg repository available")
-                    if not want in aio.pep0723.hint_failed:
-                        aio.pep0723.hint_failed.append(want)
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
         # TODO: re order repo on failures
         # TODO: try to download from pypi with
@@ -1474,7 +1248,6 @@ if not aio.cross.simulator:
         # https://github.com/thebjorn/pydeps
 
         @classmethod
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
         async def async_get_pkg(cls, want, ex, resume):
             pkg_file = ""
             for repo in PyConfig.pkg_repolist:
@@ -1639,154 +1412,9 @@ if not aio.cross.simulator:
                         repo["-CDN-"] = PyConfig.pkg_indexes[idx]
                     except Exception as e:
                         sys.print_exception(e)
-========
-        def import_one(cls, mod, lvl=0):
-            wants = []
-
-            if mod in sys.modules:
-                return []
-
-            if mod in cls.missing_fence:
-                return []
-            from aio.pep0723 import Config
-
-            for dep in Config.repos[0]["packages"].get(mod, {}).get("depends", []):
-                if dep in cls.ignore:
-                    continue
-
-                if dep in cls.missing_fence:
-                    continue
-
-                cls.missing_fence.append(dep)
-
-                if lvl < 3:
-                    for subdep in cls.imports(mod, lvl=lvl + 1):
-                        if not subdep in cls.missing_fence:
-                            cls.missing_fence.append(subdep)
-
-            if mod in cls.manual_deps:
-                deps = list(cls.manual_deps[mod])
-                deps.reverse()
-                DBG(
-                    f"""
-1242:
-    added {deps=} for {mod=}
-1243:
-    {cls.missing_fence=}
-
-"""
-                )
-                for missing in deps:
-                    if missing in cls.missing_fence:
-                        continue
-
-                    if missing in wants:
-                        continue
-
-                    # no need to request
-                    if missing in sys.modules:
-                        continue
-
-                    # prio missing
-                    wants.insert(0, missing)
-                    DBG(f"1108: added {missing=} for {mod=}")
-
-            wants.append(mod)
-            return wants
-
-        @classmethod
-        def imports(cls, *mods, lvl=0):
-            wants = []
-            unseen = False
-            for mod in mods:
-                # get potential sub deps
-                for dep in cls.import_one(mod, lvl=lvl):
-                    if dep in wants:
-                        continue
-
-                    if dep in sys.modules:
-                        continue
-
-                    if dep in cls.missing_fence:
-                        continue
-
-                    if dep in cls.ignore:
-                        continue
-
-                    wants.append(dep)
-
-                if not mod in wants:
-                    wants.append(mod)
-
-            return wants
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
     # end TopLevel_async_handler
 
-    aio.toplevel.handler = TopLevel_async_handler
-
-    async def dlopen(pkg):
-        import platform
-        import binascii
-        import json
-
-        dlref = await platform.jsiter(platform.window.dlopen(pkg))
-
-        class dlproxy(object):
-            def __init__(self, *argv, **env):
-                self.__dlref = " ".join(map(str, argv))
-                self.__lastc = "__init__"
-                self.__serial = 0
-
-            def __call__(self, callid, fn, *argv, **env):
-                stack: list = [callid, fn, argv, env]
-                jstack: str = binascii.hexlify(json.dumps(stack).encode()).decode("ascii")
-                jshex = f"{self.__dlref}:{jstack}"
-                if not callid:
-                    window.dlvoid(jshex)
-                    return None
-
-                print(f"{self.__dlref}.{fn}({argv},{env}) {callid=}")
-                async def rv():
-                    obj = await platform.jsiter(window.dlcall(callid, jshex))
-                    return json.loads(obj)
-
-                return rv()
-
-            def thread(self, fn, *argv, **env):
-                return self.__call__("", fn, *argv, **env)
-
-            def __all(self, *argv, **env):
-                self.__serial += 1
-                return self.__call__(f"C{self.__serial}", self.__lastc, *argv, **env)
-
-            def __nonzero__(self):
-                return 0
-
-            def __nop__(self, other):
-                return 0
-
-            __add__ = __iadd__ = __sub__ = __isub__ = __mul__ = __imul__ = __div__ = __idiv__ = __nop__
-
-            def __getattr__(self, attr):
-                self.__lastc = attr
-                return self.__all
-
-            def iteritems(self):
-                print(self, "iterator")
-                return []
-
-            def __del__(self):
-                pass
-
-            def __repr__(self):
-                return "\ndlproxy: %s" % self.__dlref
-
-            __str__ = __repr__
-
-        return dlproxy(dlref)
-
-    builtins.dlopen = dlopen
 
 else:
     pdb("TODO: js simulator")
@@ -1799,8 +1427,8 @@ except:
     shell.screen_width = 1024
     shell.screen_height = 600
 
+
 # ======================================================
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
 def patch():
     global COLS, LINES, CONSOLE
     import platform
@@ -2052,31 +1680,23 @@ async def display(obj, target=None, **kw):
         screen.fill((0, 0, 0))
         screen.blit(pygame.image.load(filename), (x, y))
         pygame.display.update()
-========
-# patching
-# import platform_wasm.todo
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
 
 
 # ======================================================
 # x10 mouse and xterm stuff
 # https://github.com/muesli/termenv/pull/104
 # https://xtermjs.org/docs/api/vtfeatures/
+def ESC(*argv):
+    for arg in argv:
+        sys.__stdout__.write(chr(0x1B))
+        sys.__stdout__.write(arg)
+    embed.flush()
 
-if not aio.cross.simulator:
 
-    def ESC(*argv):
-        for arg in argv:
-            sys.__stdout__.write(chr(0x1B))
-            sys.__stdout__.write(arg)
-        embed.flush()
+def CSI(*argv):
+    for arg in argv:
+        ESC(f"[{arg}")
 
-    def CSI(*argv):
-        for arg in argv:
-            ESC(f"[{arg}")
-
-    builtins.ESC = ESC
-    builtins.CSI = CSI
 
 try:
     console
@@ -2097,26 +1717,15 @@ import aio.recycle
 # DO NOT ADD ANYTHING FROM HERE OR APP RECYCLING WILL TRASH IT
 
 #
-try:
-    LOCK
-except:
-    import builtins
-    builtins.LOCK = False
+
+LOCK = False
 
 
 async def import_site(__file__, run=True):
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
     global ENABLE_USER_SITE, LOCK
     if LOCK:
         print("1665: import_site IS NOT RE ENTRANT")
-========
-    import builtins
-
-    if builtins.LOCK:
-        platform.window.console.error("1473: import_site IS NOT RE ENTRANT")
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         return
-    builtins.LOCK = True
 
     LOCK = True
     from pathlib import Path
@@ -2125,27 +1734,7 @@ async def import_site(__file__, run=True):
     hint = "main.py"
 
     try:
-<<<<<<<< HEAD:Game/build/web-cache/883ad08fec892d758e2f7ff5f3db4a8b.data
         # always start async handler or we could not do imports.
-========
-        from pathlib import Path
-
-        embed = False
-        hint = "main.py"
-
-        is_py = sys.argv[0].endswith(".py")
-
-        # if not imported by simulator then aio is handled externally
-        if "pygbag.aio" not in sys.modules:
-            import aio
-
-            sys.modules["pygbag.aio"] = aio
-
-        # if running a script be silent for prompt
-        TopLevel_async_handler.mute_state = ".py" in "".join(sys.argv)
-
-        # always start async handler or we could not do imports on import errors.
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/8e0c8197f178117b91e8dc55d7eee0db.data
         await TopLevel_async_handler.start_toplevel(platform.shell, console=True)
 
         if Path(__file__).is_file():
@@ -2277,4 +1866,4 @@ async def import_site(__file__, run=True):
             shell.interactive(prompt=True)
             return None
     finally:
-        builtins.LOCK = False
+        LOCK = False

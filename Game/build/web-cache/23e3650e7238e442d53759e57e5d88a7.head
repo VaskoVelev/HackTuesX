@@ -3,41 +3,22 @@ Content-Length: 14
 Server: GitHub.com
 Content-Type: text/html; charset=utf-8
 permissions-policy: interest-cohort=()
-x-origin-cache: HIT
-Last-Modified: Mon, 11 Mar 2024 19:01:31 GMT
+Last-Modified: Mon, 11 Mar 2024 19:01:30 GMT
 Access-Control-Allow-Origin: *
 Strict-Transport-Security: max-age=31556952
-<<<<<<<< HEAD:Game/build/web-cache/23e3650e7238e442d53759e57e5d88a7.head
 ETag: "65ef550a-e"
 expires: Fri, 15 Mar 2024 14:23:06 GMT
 Cache-Control: max-age=600
 x-proxy-cache: MISS
 X-GitHub-Request-Id: F3E4:7AB0E:428B2A:48B3DE:65F45771
 Accept-Ranges: bytes
-Date: Fri, 15 Mar 2024 14:13:07 GMT
+Date: Fri, 15 Mar 2024 23:35:29 GMT
 Via: 1.1 varnish
 Age: 0
-X-Served-By: cache-sof1510036-SOF
-X-Cache: MISS
-X-Cache-Hits: 0
-X-Timer: S1710511987.726861,VS0,VE348
+X-Served-By: cache-sof1510023-SOF
+X-Cache: HIT
+X-Cache-Hits: 1
+X-Timer: S1710545729.027553,VS0,VE340
 Vary: Accept-Encoding
-X-Fastly-Request-ID: 9e83ee137f80374abec608f535831bde674331d0
-========
-ETag: "65ef550b-e"
-expires: Fri, 15 Mar 2024 14:22:59 GMT
-Cache-Control: max-age=600
-x-proxy-cache: MISS
-X-GitHub-Request-Id: CF24:337704:84C86A:9091FD:65F4576A
-Accept-Ranges: bytes
-Date: Fri, 15 Mar 2024 14:12:59 GMT
-Via: 1.1 varnish
-Age: 0
-X-Served-By: cache-sof1510022-SOF
-X-Cache: MISS
-X-Cache-Hits: 0
-X-Timer: S1710511979.085256,VS0,VE353
-Vary: Accept-Encoding
-X-Fastly-Request-ID: 31fc62bbcefbba1f02db196ff16ede27ae52e836
->>>>>>>> 46481592963e2a8a7966e951b075b4a90502eb57:Game/build/web-cache/ffe5224cce19ab35b45c00567061a73a.head
+X-Fastly-Request-ID: e5d426d7f1dcc790928b35f97906288de70cea7d
 
